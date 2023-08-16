@@ -1,4 +1,4 @@
-package dev.user.domain;
+package dev.backlog.domain.user.model;
 
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
