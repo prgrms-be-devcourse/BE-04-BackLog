@@ -1,6 +1,6 @@
-package dev.user.domain;
+package dev.backlog.domain.user.model;
 
-import dev.auth.domain.Platform;
+import dev.backlog.domain.auth.model.Platform;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
