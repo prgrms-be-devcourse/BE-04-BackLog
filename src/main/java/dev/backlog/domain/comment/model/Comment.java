@@ -1,4 +1,4 @@
-package dev.backlog.domain.like.domain;
+package dev.backlog.domain.comment.model;
 
 import dev.backlog.domain.post.model.Post;
 import dev.backlog.domain.user.model.User;
@@ -17,9 +17,9 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "likes")
+@Table(name = "comments")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Like {
+public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,10 +28,16 @@ public class Like {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private User writer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
+
+    @Column(nullable = false, length = 50)
+    private String content;
+
+    @Column(nullable = false)
+    private boolean isDeleted;
 
 }

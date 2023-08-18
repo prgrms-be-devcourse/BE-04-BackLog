@@ -1,4 +1,4 @@
-package dev.backlog.domain.hashtag.domain;
+package dev.backlog.domain.hashtag.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
