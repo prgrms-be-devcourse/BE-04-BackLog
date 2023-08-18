@@ -1,4 +1,4 @@
-package dev.backlog.auth.domain;
+package dev.backlog.domain.auth.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

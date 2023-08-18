@@ -1,4 +1,4 @@
-package dev.backlog.auth.domain.oauth;
+package dev.backlog.domain.auth.model.oauth;
 
 import dev.backlog.domain.user.model.OAuthProvider;
 import org.springframework.stereotype.Component;

@@ -1,8 +1,8 @@
-package dev.backlog.auth.infrastructure.kakao;
+package dev.backlog.domain.auth.infrastructure.kakao;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import dev.backlog.auth.domain.oauth.OAuthInfoResponse;
+import dev.backlog.domain.auth.model.oauth.OAuthInfoResponse;
 import dev.backlog.domain.user.model.OAuthProvider;
 import lombok.Getter;
 

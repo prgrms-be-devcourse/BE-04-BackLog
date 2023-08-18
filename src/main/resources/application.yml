@@ -19,6 +19,8 @@ spring:
       password: ${REDIS_PASSWORD}
 jwt:
   secret-key: ${JWT_SECRET_KEY}
+  access-token-expire-time: ${ACCESS_TOKEN_EXPIRE_TIME}
+  refresh-token-expire-time: ${REFRESH_TOKEN_EXPIRE_TIME}
 
 oauth:
   kakao:
@@ -26,3 +28,4 @@ oauth:
     url:
       auth: https://kauth.kakao.com
       api: https://kapi.kakao.com
+

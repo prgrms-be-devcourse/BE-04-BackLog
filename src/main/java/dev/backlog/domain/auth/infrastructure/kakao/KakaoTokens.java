@@ -1,4 +1,4 @@
-package dev.backlog.auth.infrastructure.kakao;
+package dev.backlog.domain.auth.infrastructure.kakao;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

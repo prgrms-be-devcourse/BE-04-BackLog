@@ -1,10 +1,10 @@
-package dev.backlog.auth.application;
+package dev.backlog.domain.auth.application;
 
-import dev.backlog.auth.domain.AuthTokens;
-import dev.backlog.auth.domain.AuthTokensGenerator;
-import dev.backlog.auth.domain.oauth.OAuthInfoResponse;
-import dev.backlog.auth.domain.oauth.OAuthLoginParams;
-import dev.backlog.auth.domain.oauth.RequestOAuthInfoService;
+import dev.backlog.domain.auth.model.AuthTokens;
+import dev.backlog.domain.auth.model.AuthTokensGenerator;
+import dev.backlog.domain.auth.model.oauth.OAuthInfoResponse;
+import dev.backlog.domain.auth.model.oauth.OAuthLoginParams;
+import dev.backlog.domain.auth.model.oauth.RequestOAuthInfoService;
 import dev.backlog.domain.user.infrastructure.persistence.UserRepository;
 import dev.backlog.domain.user.model.Email;
 import dev.backlog.domain.user.model.OAuthProvider;

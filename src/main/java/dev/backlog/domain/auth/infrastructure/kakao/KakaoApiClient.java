@@ -1,9 +1,9 @@
-package dev.backlog.auth.infrastructure.kakao;
+package dev.backlog.domain.auth.infrastructure.kakao;
 
 
-import dev.backlog.auth.domain.oauth.OAuthApiClient;
-import dev.backlog.auth.domain.oauth.OAuthInfoResponse;
-import dev.backlog.auth.domain.oauth.OAuthLoginParams;
+import dev.backlog.domain.auth.model.oauth.OAuthApiClient;
+import dev.backlog.domain.auth.model.oauth.OAuthInfoResponse;
+import dev.backlog.domain.auth.model.oauth.OAuthLoginParams;
 import dev.backlog.domain.user.model.OAuthProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
