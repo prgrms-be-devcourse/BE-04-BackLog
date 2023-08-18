@@ -1,7 +1,7 @@
-package dev.backlog.domain.comment.domain;
+package dev.backlog.domain.posthashtag.model;
 
+import dev.backlog.domain.hashtag.model.Hashtag;
 import dev.backlog.domain.post.model.Post;
-import dev.backlog.domain.user.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -17,9 +17,9 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "comments")
+@Table(name = "posthashtags")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Comment {
+public class PostHashtag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,17 +27,11 @@ public class Comment {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User writer;
+    @JoinColumn(name = "hashtag_id", nullable = false)
+    private Hashtag hashtag;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
-
-    @Column(nullable = false, length = 50)
-    private String content;
-
-    @Column(nullable = false)
-    private boolean isDeleted;
 
 }
