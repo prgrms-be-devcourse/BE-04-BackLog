@@ -1,6 +1,5 @@
 package dev.backlog.domain.user.model;
 
-import dev.backlog.domain.auth.model.Platform;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -28,10 +27,10 @@ public class User {
 
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
-    private Platform platform;
+    private OAuthProvider oauthProvider;
 
     @Column(nullable = false)
-    private String platformId;
+    private String oauthProviderId;
 
     @Column(nullable = false, length = 20)
     private String nickname;
@@ -51,4 +50,12 @@ public class User {
 
     @Column(nullable = false)
     private LocalDate deletedDate;
+
+    public User(String nickname, Email email, String profileImage, String blogTitle, OAuthProvider oauthProvider) {
+        this.nickname = nickname;
+        this.email = email;
+        this.profileImage = profileImage;
+        this.blogTitle = blogTitle;
+        this.oauthProvider = oauthProvider;
+    }
 }
