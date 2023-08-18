@@ -1,6 +1,6 @@
-package dev.backlog.domain.reply.domain;
+package dev.backlog.domain.reply.model;
 
-import dev.backlog.domain.comment.domain.Comment;
+import dev.backlog.domain.comment.model.Comment;
 import dev.backlog.domain.user.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
