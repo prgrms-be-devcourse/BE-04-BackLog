@@ -1,1 +1,28 @@
+spring:
+  datasource:
+    url: ${DATASOURCE_URL}
+    username: ${DATASOURCE_USERNAME}
+    password: ${DATASOURCE_PASSWORD}
+  jpa:
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: create
 
+    properties:
+      hibernate:
+        format_sql: true
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+
+oauth:
+  kakao:
+    client-id: ${KAKAO_CLIENT_ID}
+    url:
+      auth: https://kauth.kakao.com
+      api: https://kapi.kakao.com
