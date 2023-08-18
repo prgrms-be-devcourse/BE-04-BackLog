@@ -24,7 +24,7 @@ public class RedisRepository {
     }
 
     public void setValueList(String key, String data) {
-        redisTemplate.opsForList().rightPushAll(key,data);
+        redisTemplate.opsForList().rightPushAll(key, data);
     }
 
     public String getValue(String key) {

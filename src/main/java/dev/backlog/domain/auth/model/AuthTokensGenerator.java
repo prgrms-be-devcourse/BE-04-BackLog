@@ -1,6 +1,6 @@
-package dev.backlog.auth.domain;
+package dev.backlog.domain.auth.model;
 
-import dev.backlog.auth.infrastructure.JwtTokenProvider;
+import dev.backlog.domain.auth.infrastructure.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -14,10 +14,10 @@ public class AuthTokensGenerator {
     private static final String BEARER_TYPE = "Bearer";
     private final JwtTokenProvider jwtTokenProvider;
 
-    @Value("${ACCESS_TOKEN_EXPIRE_TIME}")
+    @Value("${jwt.access-token-expire-time}")
     private Long accessTokenExpireTime;
 
-    @Value("${REFRESH_TOKEN_EXPIRE_TIME}")
+    @Value("${jwt.refresh-token-expire-time}")
     private Long refreshTokenExpireTime;
 
     public AuthTokens generate(Long userId) {

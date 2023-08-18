@@ -1,4 +1,4 @@
-package dev.backlog.auth.infrastructure;
+package dev.backlog.domain.auth.infrastructure;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;

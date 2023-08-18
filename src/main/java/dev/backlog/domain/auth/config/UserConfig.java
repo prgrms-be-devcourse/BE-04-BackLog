@@ -1,4 +1,4 @@
-package dev.backlog.auth.config;
+package dev.backlog.domain.auth.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
