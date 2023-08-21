@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -40,7 +41,7 @@ public class Post {
     private String content;
 
     @Column(length = 100)
-    private String introduction;
+    private String summary;
 
     @Column(nullable = false)
     private Boolean isPublic;
