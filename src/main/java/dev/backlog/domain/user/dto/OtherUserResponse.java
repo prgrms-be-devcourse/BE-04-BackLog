@@ -6,7 +6,8 @@ public record OtherUserResponse(
         String nickname,
         String introduction,
         String profileImage,
-        String blogTitle) {
+        String blogTitle
+) {
     public OtherUserResponse(User user) {
         this(
                 user.getNickname(),

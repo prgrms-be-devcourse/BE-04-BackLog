@@ -8,7 +8,8 @@ public record UserResponse(
         String introduction,
         String profileImage,
         String blogTitle,
-        Email email) {
+        Email email
+) {
     public UserResponse(User user) {
         this(
                 user.getNickname(),
