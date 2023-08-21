@@ -32,9 +32,9 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String extractSubject(String accessToken) {
+    public Long extractUserId(String accessToken) {
         Claims claims = parseClaims(accessToken);
-        return claims.getSubject();
+        return Long.parseLong(claims.getSubject());
     }
 
     private Claims parseClaims(String accessToken) {
