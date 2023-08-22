@@ -21,7 +21,7 @@ public class UserService {
 
     public OtherUserResponse findUserProfile(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("해당 사용자는 찾을 수 현없습니다."));
+                .orElseThrow(() -> new NoSuchElementException("해당 사용자는 찾을 수 없습니다."));
         return new OtherUserResponse(user);
     }
 
