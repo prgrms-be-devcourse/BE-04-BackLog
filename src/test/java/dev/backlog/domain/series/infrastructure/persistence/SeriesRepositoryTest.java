@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SeriesRepositoryTest {
 
     @Autowired
-    SeriesRepository seriesRepository;
+    private SeriesRepository seriesRepository;
     @Autowired
     private UserRepository userRepository;
 
