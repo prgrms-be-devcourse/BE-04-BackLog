@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -51,6 +52,24 @@ public class User {
     @Column(nullable = false)
     private LocalDate deletedDate;
 
+    @Builder
+    private User(OAuthProvider oauthProvider,
+                 String oauthProviderId,
+                 String nickname, Email email,
+                 String profileImage,
+                 String introduction,
+                 String blogTitle
+    ) {
+        this.oauthProvider = oauthProvider;
+        this.oauthProviderId = oauthProviderId;
+        this.nickname = nickname;
+        this.email = email;
+        this.profileImage = profileImage;
+        this.introduction = introduction;
+        this.blogTitle = blogTitle;
+        this.deletedDate = LocalDate.MAX;
+    }
+
     public User(String nickname, Email email, String profileImage, String blogTitle, OAuthProvider oauthProvider) {
         this.nickname = nickname;
         this.email = email;
@@ -58,4 +77,5 @@ public class User {
         this.blogTitle = blogTitle;
         this.oauthProvider = oauthProvider;
     }
+
 }

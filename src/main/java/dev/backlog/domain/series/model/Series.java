@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -30,4 +31,10 @@ public class Series {
 
     @Column(nullable = false, length = 20)
     private String name;
+
+    @Builder
+    private Series(User user, String name) {
+        this.user = user;
+        this.name = name;
+    }
 }

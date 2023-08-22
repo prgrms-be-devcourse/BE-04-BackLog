@@ -51,4 +51,29 @@ public class Post {
 
     @Column(nullable = false)
     private String path;
+
+    @Builder
+    private Post(Series series,
+                 User user,
+                 String title,
+                 String content,
+                 String summary,
+                 Boolean isPublic,
+                 String thumbnailImage,
+                 String path
+    ) {
+        this.series = series;
+        this.user = user;
+        this.title = title;
+        this.content = content;
+        this.summary = summary;
+        this.isPublic = isPublic;
+        this.thumbnailImage = thumbnailImage;
+        this.path = path;
+    }
+
+    public String getWriterName() {
+        return this.user.getNickname();
+    }
+
 }
