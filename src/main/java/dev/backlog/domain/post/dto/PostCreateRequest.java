@@ -10,7 +10,7 @@ public record PostCreateRequest(
         String series,
         String title,
         String content,
-        Set<String> hashTags,
+        Set<String> hashtags,
         String summary,
         boolean isPublic,
         String thumbnailImage,

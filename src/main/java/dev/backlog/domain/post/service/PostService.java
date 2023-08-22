@@ -5,7 +5,6 @@ import dev.backlog.domain.post.dto.PostResponseDto;
 import dev.backlog.domain.post.infrastructure.persistence.PostRepository;
 import dev.backlog.domain.post.model.Post;
 import dev.backlog.domain.post.tmp.UserDetails;
-import dev.backlog.domain.posthashtag.model.PostHashtag;
 import dev.backlog.domain.posthashtag.service.PostHashtagService;
 import dev.backlog.domain.series.infrastructure.persistence.SeriesRepository;
 import dev.backlog.domain.series.model.Series;
@@ -37,12 +36,12 @@ public class PostService {
 
         Series series = seriesRepository.findByUserAndName(user, request.series())
                 .orElse(null);
-
         Post post = request.toEntity(series, user);
         Post savedPost = postRepository.save(post);
 
-
-
+        if (request.hashtags() != null) {
+            postHashtagService.save(request.hashtags(), post);
+        }
         return savedPost.getId();
     }
 
