@@ -19,10 +19,10 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/{id}")
+    @GetMapping("/{nickname}")
     @ResponseStatus(value = HttpStatus.OK)
-    public OtherUserResponse findUserProfile(@PathVariable Long id) {
-        return userService.findUserProfile(id);
+    public OtherUserResponse findUserProfile(@PathVariable String nickname) {
+        return userService.findUserProfile(nickname);
     }
 
     @GetMapping("/me")

@@ -19,8 +19,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
-    public OtherUserResponse findUserProfile(Long id) {
-        User user = userRepository.findById(id)
+    public OtherUserResponse findUserProfile(String nickname) {
+        User user = userRepository.findByNickname(nickname)
                 .orElseThrow(() -> new NoSuchElementException("해당 사용자는 찾을 수 없습니다."));
         return new OtherUserResponse(user);
     }
