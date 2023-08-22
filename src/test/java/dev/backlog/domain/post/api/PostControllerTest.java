@@ -3,6 +3,7 @@ package dev.backlog.domain.post.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.backlog.domain.post.dto.PostCreateRequest;
 import dev.backlog.domain.post.service.PostService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -28,6 +29,7 @@ public class PostControllerTest {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
+    @DisplayName("게시물 생성 요청을 받아 처리 후 201 코드를 반환하고 게시물 조회 URI를 반환한다.")
     @Test
     public void testCreate() throws Exception {
         Long userId = 1L;
