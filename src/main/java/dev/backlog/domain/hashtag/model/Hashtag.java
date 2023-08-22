@@ -24,4 +24,8 @@ public class Hashtag {
     @Column(nullable = false, length = 20)
     private String name;
 
+    public Hashtag(String name) {
+        this.name = name;
+    }
+
 }
