@@ -1,7 +1,7 @@
 package dev.backlog.domain.user.service;
 
 import dev.backlog.domain.auth.infrastructure.JwtTokenProvider;
-import dev.backlog.domain.user.dto.OtherUserResponse;
+import dev.backlog.domain.user.dto.UserDetailsResponse;
 import dev.backlog.domain.user.dto.UserResponse;
 import dev.backlog.domain.user.infrastructure.persistence.UserRepository;
 import dev.backlog.domain.user.model.User;
@@ -19,16 +19,16 @@ public class UserService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
 
-    public OtherUserResponse findUserProfile(String nickname) {
+    public UserResponse findUserProfile(String nickname) {
         User user = userRepository.findByNickname(nickname)
                 .orElseThrow(() -> new NoSuchElementException("해당 사용자는 찾을 수 없습니다."));
-        return new OtherUserResponse(user);
+        return new UserResponse(user);
     }
 
-    public UserResponse findMyProfile(String token) {
+    public UserDetailsResponse findMyProfile(String token) {
         Long userId = jwtTokenProvider.extractUserId(token);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("해당 사용자는 찾을 수 없습니다."));
-        return new UserResponse(user);
+        return new UserDetailsResponse(user);
     }
 }

@@ -1,6 +1,6 @@
 package dev.backlog.domain.user.api;
 
-import dev.backlog.domain.user.dto.OtherUserResponse;
+import dev.backlog.domain.user.dto.UserDetailsResponse;
 import dev.backlog.domain.user.dto.UserResponse;
 import dev.backlog.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -21,13 +21,13 @@ public class UserController {
 
     @GetMapping("/{nickname}")
     @ResponseStatus(value = HttpStatus.OK)
-    public OtherUserResponse findUserProfile(@PathVariable String nickname) {
+    public UserResponse findUserProfile(@PathVariable String nickname) {
         return userService.findUserProfile(nickname);
     }
 
     @GetMapping("/me")
     @ResponseStatus(value = HttpStatus.OK)
-    public UserResponse findMyProfile(@RequestHeader("Authorization") String token) {
+    public UserDetailsResponse findMyProfile(@RequestHeader("Authorization") String token) {
         String realToken = token.substring(7);
         return userService.findMyProfile(realToken);
     }
