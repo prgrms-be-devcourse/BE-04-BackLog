@@ -29,11 +29,11 @@ public class PostHashtagService {
 
     private List<Hashtag> findHashtags(Set<String> hashtags) {
         return hashtags.stream()
-                .map(this::findOrSave)
+                .map(this::findOrCreate)
                 .toList();
     }
 
-    private Hashtag findOrSave(String hashtag) {
+    private Hashtag findOrCreate(String hashtag) {
         return hashtagRepository.findByName(hashtag)
                 .orElseGet(() -> hashtagRepository.save(new Hashtag(hashtag)));
     }
