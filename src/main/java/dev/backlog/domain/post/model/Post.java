@@ -1,5 +1,6 @@
 package dev.backlog.domain.post.model;
 
+import dev.backlog.common.entity.BaseEntity;
 import dev.backlog.domain.series.model.Series;
 import dev.backlog.domain.user.model.User;
 import jakarta.persistence.Column;
@@ -16,11 +17,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 @Entity
 @Getter
 @Table(name = "posts")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Post {
+public class Post extends BaseEntity {
+
+    private static final int NEGATIVE_NUMBER = 0;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,6 +41,9 @@ public class Post {
 
     @Column(nullable = false, length = 50)
     private String title;
+
+    @Column(nullable = false)
+    private Long viewCount;
 
     @Column(nullable = false, length = 5000)
     private String content;
@@ -65,6 +73,7 @@ public class Post {
         this.series = series;
         this.user = user;
         this.title = title;
+        this.viewCount = 0L;
         this.content = content;
         this.summary = summary;
         this.isPublic = isPublic;
@@ -72,8 +81,11 @@ public class Post {
         this.path = path;
     }
 
-    public String getWriterName() {
-        return this.user.getNickname();
+    public void updateViewCount(Long viewCount) {
+        if (Objects.isNull(viewCount) || viewCount <= NEGATIVE_NUMBER) {
+            throw new IllegalArgumentException("잘못된 조회수입니다.");
+        }
+        this.viewCount = viewCount;
     }
 
 }
