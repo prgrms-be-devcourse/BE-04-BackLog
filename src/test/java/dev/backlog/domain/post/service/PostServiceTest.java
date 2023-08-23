@@ -3,6 +3,7 @@ package dev.backlog.domain.post.service;
 import dev.backlog.config.TestContainerConfig;
 import dev.backlog.domain.comment.infrastructure.persistence.CommentRepository;
 import dev.backlog.domain.comment.model.Comment;
+import dev.backlog.domain.post.dto.PostCreateRequest;
 import dev.backlog.domain.post.dto.PostResponse;
 import dev.backlog.domain.post.infrastructure.persistence.PostRepository;
 import dev.backlog.domain.post.model.Post;
@@ -10,6 +11,7 @@ import dev.backlog.domain.user.infrastructure.persistence.UserRepository;
 import dev.backlog.domain.user.model.Email;
 import dev.backlog.domain.user.model.OAuthProvider;
 import dev.backlog.domain.user.model.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,20 +22,8 @@ import org.springframework.context.annotation.Import;
 import java.util.List;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-
-import dev.backlog.domain.post.dto.PostCreateRequest;
-import dev.backlog.domain.user.infrastructure.persistence.UserRepository;
-import dev.backlog.domain.user.model.Email;
-import dev.backlog.domain.user.model.User;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import static dev.backlog.domain.user.model.OAuthProvider.KAKAO;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Import(value = {TestContainerConfig.class})
 @ExtendWith(TestContainerConfig.class)
@@ -41,16 +31,23 @@ import static dev.backlog.domain.user.model.OAuthProvider.KAKAO;
 class PostServiceTest {
 
     @Autowired
-    private UserRepository userRepository;
-    
-    @Autowired
     private PostService postService;
-    
+
+    @Autowired
+    private UserRepository userRepository;
+
     @Autowired
     private PostRepository postRepository;
 
     @Autowired
     private CommentRepository commentRepository;
+
+    @BeforeEach
+    void setUp() {
+        commentRepository.deleteAll();
+        postRepository.deleteAll();
+        userRepository.deleteAll();
+    }
 
     @DisplayName("게시글을 상세 조회할 수 있다.")
     @Test
@@ -160,7 +157,7 @@ class PostServiceTest {
         assertThat(secondSamePostResponse.viewCount()).isEqualTo(increasedViewCount);
         assertThat(firstSamePostResponse.viewCount()).isEqualTo(secondSamePostResponse.viewCount());
     }
-    
+
     @DisplayName("포스트 생성요청과 유저의 아이디를 받아 게시물을 저장할 수 있다.")
     @Test
     void createTest() {
@@ -186,7 +183,7 @@ class PostServiceTest {
         );
 
         Long postId = postService.create(request, savedUser.getId());
-        Assertions.assertThat(postId).isOne();
+        assertThat(postId).isNotNull();
     }
 
 }

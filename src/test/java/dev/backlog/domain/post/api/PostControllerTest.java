@@ -1,6 +1,8 @@
 package dev.backlog.domain.post.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.backlog.domain.comment.model.Comment;
+import dev.backlog.domain.post.dto.PostCreateRequest;
 import dev.backlog.domain.post.dto.PostResponse;
 import dev.backlog.domain.post.model.Post;
 import dev.backlog.domain.post.service.PostService;
@@ -14,6 +16,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -23,17 +26,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.List;
 import java.util.UUID;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.backlog.domain.post.dto.PostCreateRequest;
-import dev.backlog.domain.post.service.PostService;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -42,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(PostController.class)
-public class PostControllerTest {
+class PostControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -54,7 +46,7 @@ public class PostControllerTest {
 
     @DisplayName("게시물 생성 요청을 받아 처리 후 201 코드를 반환하고 게시물 조회 URI를 반환한다.")
     @Test
-    public void testCreate() throws Exception {
+    void testCreate() throws Exception {
         Long userId = 1L;
         Long postId = 2L;
         PostCreateRequest request = new PostCreateRequest(
@@ -76,7 +68,7 @@ public class PostControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", "/posts/" + postId));
     }
-    
+
     @DisplayName("게시글을 상세 조회할 수 있다.")
     @Test
     void findPost() throws Exception {

@@ -2,8 +2,8 @@ package dev.backlog.domain.post.service;
 
 import dev.backlog.domain.comment.infrastructure.persistence.CommentRepository;
 import dev.backlog.domain.comment.model.Comment;
-import dev.backlog.domain.post.dto.PostResponse;
 import dev.backlog.domain.post.dto.PostCreateRequest;
+import dev.backlog.domain.post.dto.PostResponse;
 import dev.backlog.domain.post.infrastructure.persistence.PostRepository;
 import dev.backlog.domain.post.model.Post;
 import dev.backlog.domain.series.infrastructure.persistence.SeriesRepository;

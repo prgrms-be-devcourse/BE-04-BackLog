@@ -1,7 +1,7 @@
 package dev.backlog.domain.auth.application;
 
-import dev.backlog.domain.auth.model.AuthTokens;
 import dev.backlog.domain.auth.infrastructure.kakao.KakaoLoginParams;
+import dev.backlog.domain.auth.model.AuthTokens;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
