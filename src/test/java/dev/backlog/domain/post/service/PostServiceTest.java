@@ -1,6 +1,6 @@
 package dev.backlog.domain.post.service;
 
-import dev.backlog.config.TestContainerConfig;
+import dev.backlog.common.config.TestContainerConfig;
 import dev.backlog.domain.comment.infrastructure.persistence.CommentRepository;
 import dev.backlog.domain.comment.model.Comment;
 import dev.backlog.domain.post.dto.PostCreateRequest;
@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,7 +24,7 @@ import java.util.UUID;
 import static dev.backlog.domain.user.model.OAuthProvider.KAKAO;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Import(value = {TestContainerConfig.class})
+
 @ExtendWith(TestContainerConfig.class)
 @SpringBootTest
 class PostServiceTest {
@@ -133,7 +132,7 @@ class PostServiceTest {
                 .introduction("test")
                 .blogTitle("test")
                 .build();
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
         Post post = Post.builder()
                 .series(null)
@@ -145,11 +144,11 @@ class PostServiceTest {
                 .thumbnailImage("test")
                 .path("test")
                 .build();
-        postRepository.save(post);
+        Post savedPost = postRepository.save(post);
 
         //when
-        PostResponse firstSamePostResponse = postService.findPostById(post.getId(), user.getId());
-        PostResponse secondSamePostResponse = postService.findPostById(post.getId(), user.getId());
+        PostResponse firstSamePostResponse = postService.findPostById(savedPost.getId(), savedUser.getId());
+        PostResponse secondSamePostResponse = postService.findPostById(savedPost.getId(), savedUser.getId());
 
         //then
         long increasedViewCount = 1L;
