@@ -1,5 +1,6 @@
 package dev.backlog.domain.comment.model;
 
+import dev.backlog.common.entity.BaseEntity;
 import dev.backlog.domain.post.model.Post;
 import dev.backlog.domain.user.model.User;
 import jakarta.persistence.Column;
@@ -12,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -19,7 +21,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Table(name = "comments")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Comment {
+public class Comment extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,5 +41,17 @@ public class Comment {
 
     @Column(nullable = false)
     private boolean isDeleted;
+
+    @Builder
+    private Comment(User writer,
+                    Post post,
+                    String content,
+                    boolean isDeleted
+    ) {
+        this.writer = writer;
+        this.post = post;
+        this.content = content;
+        this.isDeleted = isDeleted;
+    }
 
 }

@@ -1,5 +1,6 @@
 package dev.backlog.domain.post.model;
 
+import dev.backlog.common.entity.BaseEntity;
 import dev.backlog.domain.series.model.Series;
 import dev.backlog.domain.user.model.User;
 import jakarta.persistence.Column;
@@ -12,14 +13,19 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.Objects;
 
 @Entity
 @Getter
 @Table(name = "posts")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Post {
+public class Post extends BaseEntity {
+
+    private static final int NEGATIVE_NUMBER = 0;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,11 +42,14 @@ public class Post {
     @Column(nullable = false, length = 50)
     private String title;
 
+    @Column(nullable = false)
+    private Long viewCount;
+
     @Column(nullable = false, length = 5000)
     private String content;
 
     @Column(length = 100)
-    private String introduction;
+    private String summary;
 
     @Column(nullable = false)
     private Boolean isPublic;
@@ -50,4 +59,34 @@ public class Post {
 
     @Column(nullable = false)
     private String path;
+
+    @Builder
+    private Post(Series series,
+                 User user,
+                 String title,
+                 Long viewCount,
+                 String content,
+                 String summary,
+                 Boolean isPublic,
+                 String thumbnailImage,
+                 String path
+    ) {
+        this.series = series;
+        this.user = user;
+        this.title = title;
+        this.viewCount = viewCount;
+        this.content = content;
+        this.summary = summary;
+        this.isPublic = isPublic;
+        this.thumbnailImage = thumbnailImage;
+        this.path = path;
+    }
+
+    public void updateViewCount(Long viewCount) {
+        if (Objects.isNull(viewCount) || viewCount <= NEGATIVE_NUMBER) {
+            throw new IllegalArgumentException("잘못된 조회수입니다.");
+        }
+        this.viewCount = viewCount;
+    }
+
 }
