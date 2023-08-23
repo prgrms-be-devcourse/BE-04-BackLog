@@ -26,6 +26,7 @@ import java.util.Objects;
 public class Post extends BaseEntity {
 
     private static final int NEGATIVE_NUMBER = 0;
+    public static final long INITIAL_VIEW_COUNT = 0L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -73,7 +74,7 @@ public class Post extends BaseEntity {
         this.series = series;
         this.user = user;
         this.title = title;
-        this.viewCount = 0L;
+        this.viewCount = INITIAL_VIEW_COUNT;
         this.content = content;
         this.summary = summary;
         this.isPublic = isPublic;
