@@ -1,4 +1,4 @@
-package dev.backlog.domain.posthashtag.model;
+package dev.backlog.domain.post.model;
 
 import dev.backlog.domain.hashtag.model.Hashtag;
 import dev.backlog.domain.post.model.Post;

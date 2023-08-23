@@ -5,7 +5,6 @@ import dev.backlog.domain.post.dto.PostResponseDto;
 import dev.backlog.domain.post.infrastructure.persistence.PostRepository;
 import dev.backlog.domain.post.model.Post;
 import dev.backlog.domain.post.tmp.UserDetails;
-import dev.backlog.domain.posthashtag.service.PostHashtagService;
 import dev.backlog.domain.series.infrastructure.persistence.SeriesRepository;
 import dev.backlog.domain.series.model.Series;
 import dev.backlog.domain.user.infrastructure.persistence.UserRepository;
