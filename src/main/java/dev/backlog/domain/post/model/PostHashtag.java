@@ -1,7 +1,6 @@
 package dev.backlog.domain.post.model;
 
 import dev.backlog.domain.hashtag.model.Hashtag;
-import dev.backlog.domain.post.model.Post;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
