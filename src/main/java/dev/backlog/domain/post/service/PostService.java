@@ -37,6 +37,7 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
         List<Comment> comments = commentRepository.findAllByPost(post);
+
         String userAndPostRedisKey = String.format(REDIS_KEY_PREFIX, userId, postId);
         if (Boolean.FALSE.equals(redisTemplate.hasKey(userAndPostRedisKey))) {
             Long currentViewCount = post.getViewCount();
