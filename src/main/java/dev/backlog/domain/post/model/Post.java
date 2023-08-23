@@ -26,7 +26,7 @@ import java.util.Objects;
 public class Post extends BaseEntity {
 
     private static final int NEGATIVE_NUMBER = 0;
-    public static final long INITIAL_VIEW_COUNT = 0L;
+    private static final long INITIAL_VIEW_COUNT = 0L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
