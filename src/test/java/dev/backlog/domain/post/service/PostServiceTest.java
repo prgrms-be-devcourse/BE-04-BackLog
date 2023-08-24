@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @ExtendWith(TestContainerConfig.class)
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PostServiceTest {
 
     @Autowired
