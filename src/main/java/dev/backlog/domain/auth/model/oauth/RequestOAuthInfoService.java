@@ -24,4 +24,5 @@ public class RequestOAuthInfoService {
         String accessToken = user.requestAccessToken(params);
         return user.requestOauthInfo(accessToken);
     }
+
 }

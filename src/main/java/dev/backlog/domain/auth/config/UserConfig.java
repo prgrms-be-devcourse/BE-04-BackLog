@@ -11,4 +11,5 @@ public class UserConfig {
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
+
 }

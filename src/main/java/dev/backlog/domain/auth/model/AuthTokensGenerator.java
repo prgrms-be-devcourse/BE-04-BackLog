@@ -31,4 +31,5 @@ public class AuthTokensGenerator {
 
         return AuthTokens.of(accessToken, refreshToken, BEARER_TYPE, accessTokenExpireTime / 1000L);
     }
+
 }

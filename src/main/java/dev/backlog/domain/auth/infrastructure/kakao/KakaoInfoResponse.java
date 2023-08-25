@@ -61,4 +61,5 @@ public class KakaoInfoResponse implements OAuthInfoResponse {
         private String nickname;
         private String profileImage;
     }
+
 }

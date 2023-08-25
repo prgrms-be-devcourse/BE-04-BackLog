@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface SeriesRepository extends JpaRepository<Series, Long> {
 
     Optional<Series> findByUserAndName(User user, String name);
+
 }

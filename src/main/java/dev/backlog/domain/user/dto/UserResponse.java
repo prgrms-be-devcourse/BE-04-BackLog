@@ -16,4 +16,5 @@ public record UserResponse(
                 user.getBlogTitle()
         );
     }
+
 }

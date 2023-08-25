@@ -37,4 +37,5 @@ public class Series {
         this.user = user;
         this.name = name;
     }
+
 }

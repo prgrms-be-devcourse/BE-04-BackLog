@@ -43,10 +43,11 @@ public class Comment extends BaseEntity {
     private boolean isDeleted;
 
     @Builder
-    private Comment(User writer,
-                    Post post,
-                    String content,
-                    boolean isDeleted
+    private Comment(
+            User writer,
+            Post post,
+            String content,
+            boolean isDeleted
     ) {
         this.writer = writer;
         this.post = post;

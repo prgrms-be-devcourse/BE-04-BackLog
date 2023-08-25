@@ -53,12 +53,11 @@ public class PostService {
     public Long create(PostCreateRequest request, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
-
         Series series = seriesRepository.findByUserAndName(user, request.series())
                 .orElse(null);
         Post post = request.toEntity(series, user);
-        Post savedPost = postRepository.save(post);
 
+        Post savedPost = postRepository.save(post);
         if (request.hashtags() != null) {
             postHashtagService.save(request.hashtags(), post);
         }

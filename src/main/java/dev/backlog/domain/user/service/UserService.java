@@ -31,4 +31,5 @@ public class UserService {
                 .orElseThrow(() -> new NoSuchElementException("해당 사용자는 찾을 수 없습니다."));
         return new UserDetailsResponse(user);
     }
+
 }

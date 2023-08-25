@@ -53,12 +53,13 @@ public class User {
     private LocalDate deletedDate;
 
     @Builder
-    private User(OAuthProvider oauthProvider,
-                 String oauthProviderId,
-                 String nickname, Email email,
-                 String profileImage,
-                 String introduction,
-                 String blogTitle
+    private User(
+            OAuthProvider oauthProvider,
+            String oauthProviderId,
+            String nickname, Email email,
+            String profileImage,
+            String introduction,
+            String blogTitle
     ) {
         this.oauthProvider = oauthProvider;
         this.oauthProviderId = oauthProviderId;

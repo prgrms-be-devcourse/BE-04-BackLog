@@ -24,7 +24,6 @@ import java.util.UUID;
 import static dev.backlog.domain.user.model.OAuthProvider.KAKAO;
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 @ExtendWith(TestContainerConfig.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PostServiceTest {

@@ -62,14 +62,15 @@ public class Post extends BaseEntity {
     private String path;
 
     @Builder
-    private Post(Series series,
-                 User user,
-                 String title,
-                 String content,
-                 String summary,
-                 Boolean isPublic,
-                 String thumbnailImage,
-                 String path
+    private Post(
+            Series series,
+            User user,
+            String title,
+            String content,
+            String summary,
+            Boolean isPublic,
+            String thumbnailImage,
+            String path
     ) {
         this.series = series;
         this.user = user;

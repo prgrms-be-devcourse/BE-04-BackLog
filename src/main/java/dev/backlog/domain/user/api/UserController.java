@@ -31,4 +31,5 @@ public class UserController {
         String realToken = token.substring(7);
         return userService.findMyProfile(realToken);
     }
+
 }

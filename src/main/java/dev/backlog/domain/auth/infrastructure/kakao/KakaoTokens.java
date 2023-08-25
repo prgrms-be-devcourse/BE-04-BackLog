@@ -24,4 +24,5 @@ public class KakaoTokens {
 
     @JsonProperty("refresh_token_expires_in")
     private int refreshTokenExpiresIn;
+
 }
