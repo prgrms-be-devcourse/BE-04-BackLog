@@ -52,8 +52,9 @@ class PostRepositoryTest {
         Slice<Post> postSlice = postRepository.findLikedPostsByUserId(user.getId(), pageRequest);
 
         //then
+        int expectedCount = 10;
         assertThat(postSlice.hasNext()).isFalse();
-        assertThat(postSlice.getNumberOfElements()).isEqualTo(10);
+        assertThat(postSlice.getNumberOfElements()).isEqualTo(expectedCount);
     }
 
 }
