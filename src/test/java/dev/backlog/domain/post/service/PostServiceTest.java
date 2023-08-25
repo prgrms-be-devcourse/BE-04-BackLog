@@ -1,11 +1,16 @@
 package dev.backlog.domain.post.service;
 
+import dev.backlog.common.config.JpaConfig;
 import dev.backlog.common.config.TestContainerConfig;
 import dev.backlog.common.util.TestStubUtil;
 import dev.backlog.domain.comment.infrastructure.persistence.CommentRepository;
 import dev.backlog.domain.comment.model.Comment;
+import dev.backlog.domain.like.infrastructure.persistence.LikeRepository;
+import dev.backlog.domain.like.model.Like;
 import dev.backlog.domain.post.dto.PostCreateRequest;
 import dev.backlog.domain.post.dto.PostResponse;
+import dev.backlog.domain.post.dto.PostSliceResponse;
+import dev.backlog.domain.post.dto.PostSummaryResponse;
 import dev.backlog.domain.post.infrastructure.persistence.PostRepository;
 import dev.backlog.domain.post.model.Post;
 import dev.backlog.domain.user.infrastructure.persistence.UserRepository;
@@ -16,12 +21,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
+import java.util.Comparator;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
+@Import(value = {JpaConfig.class})
 @ExtendWith(TestContainerConfig.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PostServiceTest {
@@ -38,8 +47,12 @@ class PostServiceTest {
     @Autowired
     private CommentRepository commentRepository;
 
+    @Autowired
+    private LikeRepository likeRepository;
+
     @BeforeEach
     void setUp() {
+        likeRepository.deleteAll();
         commentRepository.deleteAll();
         postRepository.deleteAll();
         userRepository.deleteAll();
@@ -110,6 +123,35 @@ class PostServiceTest {
 
         Long postId = postService.create(request, savedUser.getId());
         assertThat(postId).isNotNull();
+    }
+
+    @DisplayName("사용자가 좋아요를 누른 글들을 최신 순으로 조회할 수 있다.")
+    @Test
+    void findLikedPostsByUser() {
+        //given
+        User user = TestStubUtil.createUser();
+        userRepository.save(user);
+
+        int postCount = 30;
+        List<Post> posts = TestStubUtil.createPosts(user, postCount);
+        postRepository.saveAll(posts);
+        posts.stream()
+                .forEach(post -> {
+                    Like like = TestStubUtil.createLike(user, post);
+                    likeRepository.save(like);
+                });
+
+        PageRequest pageRequest = PageRequest.of(1, 20, Sort.Direction.DESC, "createdAt");
+
+        //when
+        PostSliceResponse postSliceResponse = postService.findLikedPostsByUser(user.getId(), pageRequest);
+
+        //then
+        int expectedCount = 10;
+
+        assertThat(postSliceResponse.data()).isSortedAccordingTo(Comparator.comparing(PostSummaryResponse::createdAt).reversed());
+        assertThat(postSliceResponse.hasNext()).isFalse();
+        assertThat(postSliceResponse.numberOfElements()).isEqualTo(expectedCount);
     }
 
 }
