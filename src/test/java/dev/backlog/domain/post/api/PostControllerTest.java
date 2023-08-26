@@ -10,8 +10,6 @@ import dev.backlog.domain.post.dto.PostSummaryResponse;
 import dev.backlog.domain.post.model.Post;
 import dev.backlog.domain.post.service.PostService;
 import dev.backlog.domain.series.model.Series;
-import dev.backlog.domain.user.model.Email;
-import dev.backlog.domain.user.model.OAuthProvider;
 import dev.backlog.domain.user.model.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,7 +26,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import java.util.List;
-import java.util.UUID;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
@@ -86,50 +83,21 @@ class PostControllerTest {
         Long comment2Id = 2L;
         Long seriesId = 1L;
 
-        User user = User.builder()
-                .oauthProvider(OAuthProvider.KAKAO)
-                .oauthProviderId(String.valueOf(UUID.randomUUID()))
-                .nickname("test")
-                .email(new Email("test"))
-                .profileImage("test")
-                .introduction("test")
-                .blogTitle("test")
-                .build();
+        User user = TestStubUtil.createUser();
         ReflectionTestUtils.setField(user, "id", userId);
 
-        Series series = Series.builder()
-                .user(user)
-                .name("test")
-                .build();
+        Series series = TestStubUtil.createSeries(user);
         ReflectionTestUtils.setField(series, "id", seriesId);
 
-        Post post = Post.builder()
-                .series(series)
-                .user(user)
-                .title("test")
-                .content("test")
-                .summary("test")
-                .isPublic(true)
-                .thumbnailImage("test")
-                .path("test")
-                .build();
+        Post post = TestStubUtil.createPost(user);
         ReflectionTestUtils.setField(post, "id", postId);
 
-        Comment comment1 = Comment.builder()
-                .writer(user)
-                .post(post)
-                .content("test1")
-                .isDeleted(false)
-                .build();
+        Comment comment1 = TestStubUtil.createComment(user, post);
         ReflectionTestUtils.setField(comment1, "id", comment1Id);
 
-        Comment comment2 = Comment.builder()
-                .writer(user)
-                .post(post)
-                .content("test2")
-                .isDeleted(false)
-                .build();
+        Comment comment2 = TestStubUtil.createComment(user, post);
         ReflectionTestUtils.setField(comment2, "id", comment2Id);
+
         PostResponse postResponse = PostResponse.from(post, List.of(comment1, comment2));
         when(postService.findPostById(postId, userId)).thenReturn(postResponse);
 
@@ -137,6 +105,17 @@ class PostControllerTest {
         mockMvc.perform(get("/api/posts/{postId}", postId)
                         .param("userId", userId.toString()))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.postId").value(postId))
+                .andExpect(jsonPath("$.series").isNotEmpty())
+                .andExpect(jsonPath("$.userId").value(userId))
+                .andExpect(jsonPath("$.title").value("test"))
+                .andExpect(jsonPath("$.viewCount").value(0))
+                .andExpect(jsonPath("$.content").value("test"))
+                .andExpect(jsonPath("$.summary").value("test"))
+                .andExpect(jsonPath("$.isPublic").value(true))
+                .andExpect(jsonPath("$.path").value("test"))
+                .andExpect(jsonPath("$.createdAt").isEmpty())
+                .andExpect(jsonPath("$.comments", hasSize(2)))
                 .andDo(MockMvcResultHandlers.print());
     }
 

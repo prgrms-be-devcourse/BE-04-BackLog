@@ -3,6 +3,7 @@ package dev.backlog.common.util;
 import dev.backlog.domain.comment.model.Comment;
 import dev.backlog.domain.like.model.Like;
 import dev.backlog.domain.post.model.Post;
+import dev.backlog.domain.series.model.Series;
 import dev.backlog.domain.user.model.Email;
 import dev.backlog.domain.user.model.OAuthProvider;
 import dev.backlog.domain.user.model.User;
@@ -36,6 +37,17 @@ public class TestStubUtil {
 
     public static Comment createComment(User user, Post post) {
         return getComment(user, post);
+    }
+
+    public static Series createSeries(User user) {
+        return getSeries(user);
+    }
+
+    private static Series getSeries(User user) {
+        return Series.builder()
+                .user(user)
+                .name("test")
+                .build();
     }
 
     private static Like getLike(User user, Post post) {
