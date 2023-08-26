@@ -15,49 +15,49 @@ import java.util.UUID;
 public class TestStubUtil {
 
     public static User createUser() {
-        return getUser();
+        return buildUser();
     }
 
-    public static Post createPost(User user) {
-        return getPost(user);
+    public static Post createPost(User user, Series series) {
+        return buildPost(user, series);
     }
 
-    public static List<Post> createPosts(User user, int count) {
+    public static List<Post> createPosts(User user, Series series, int count) {
         List<Post> posts = new ArrayList<>();
         for (int index = 0; index < count; index++) {
-            Post post = getPost(user);
+            Post post = buildPost(user, series);
             posts.add(post);
         }
         return posts;
     }
 
     public static Like createLike(User user, Post post) {
-        return getLike(user, post);
+        return buildLike(user, post);
     }
 
     public static Comment createComment(User user, Post post) {
-        return getComment(user, post);
+        return buildComment(user, post);
     }
 
     public static Series createSeries(User user) {
-        return getSeries(user);
+        return buildSeries(user);
     }
 
-    private static Series getSeries(User user) {
+    private static Series buildSeries(User user) {
         return Series.builder()
                 .user(user)
                 .name("test")
                 .build();
     }
 
-    private static Like getLike(User user, Post post) {
+    private static Like buildLike(User user, Post post) {
         return Like.builder()
                 .post(post)
                 .user(user)
                 .build();
     }
 
-    private static User getUser() {
+    private static User buildUser() {
         return User.builder()
                 .oauthProvider(OAuthProvider.KAKAO)
                 .oauthProviderId(String.valueOf(UUID.randomUUID()))
@@ -69,9 +69,9 @@ public class TestStubUtil {
                 .build();
     }
 
-    private static Post getPost(User user) {
+    private static Post buildPost(User user, Series series) {
         return Post.builder()
-                .series(null)
+                .series(series)
                 .user(user)
                 .title("test")
                 .content("test")
@@ -82,7 +82,7 @@ public class TestStubUtil {
                 .build();
     }
 
-    private static Comment getComment(User user, Post post) {
+    private static Comment buildComment(User user, Post post) {
         return Comment.builder()
                 .writer(user)
                 .post(post)

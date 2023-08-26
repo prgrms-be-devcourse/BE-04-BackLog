@@ -34,7 +34,7 @@ class CommentRepositoryTest {
         User user = TestStubUtil.createUser();
         userRepository.save(user);
 
-        Post post = TestStubUtil.createPost(user);
+        Post post = TestStubUtil.createPost(user, null);
         postRepository.save(post);
 
         Comment comment1 = TestStubUtil.createComment(user, post);
@@ -56,7 +56,7 @@ class CommentRepositoryTest {
         User user = TestStubUtil.createUser();
         userRepository.save(user);
 
-        Post post = TestStubUtil.createPost(user);
+        Post post = TestStubUtil.createPost(user, null);
         postRepository.save(post);
 
         Comment comment1 = TestStubUtil.createComment(user, post);

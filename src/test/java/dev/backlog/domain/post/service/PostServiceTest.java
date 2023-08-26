@@ -65,7 +65,7 @@ class PostServiceTest {
         User user = TestStubUtil.createUser();
         userRepository.save(user);
 
-        Post post = TestStubUtil.createPost(user);
+        Post post = TestStubUtil.createPost(user, null);
         postRepository.save(post);
 
         Comment comment1 = TestStubUtil.createComment(user, post);
@@ -86,7 +86,7 @@ class PostServiceTest {
         User user = TestStubUtil.createUser();
         User savedUser = userRepository.save(user);
 
-        Post post = TestStubUtil.createPost(user);
+        Post post = TestStubUtil.createPost(user, null);
         Post savedPost = postRepository.save(post);
 
         Comment comment1 = TestStubUtil.createComment(user, post);
@@ -133,7 +133,7 @@ class PostServiceTest {
         userRepository.save(user);
 
         int postCount = 30;
-        List<Post> posts = TestStubUtil.createPosts(user, postCount);
+        List<Post> posts = TestStubUtil.createPosts(user, null, postCount);
         postRepository.saveAll(posts);
         posts.stream()
                 .forEach(post -> {

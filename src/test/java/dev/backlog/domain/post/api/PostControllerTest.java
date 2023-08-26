@@ -89,7 +89,7 @@ class PostControllerTest {
         Series series = TestStubUtil.createSeries(user);
         ReflectionTestUtils.setField(series, "id", seriesId);
 
-        Post post = TestStubUtil.createPost(user);
+        Post post = TestStubUtil.createPost(user, series);
         ReflectionTestUtils.setField(post, "id", postId);
 
         Comment comment1 = TestStubUtil.createComment(user, post);
@@ -127,7 +127,7 @@ class PostControllerTest {
         User user = TestStubUtil.createUser();
 
         int postCount = 10;
-        List<Post> posts = TestStubUtil.createPosts(user, postCount);
+        List<Post> posts = TestStubUtil.createPosts(user, null, postCount);
 
         int page = 1;
         int size = 20;

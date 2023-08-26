@@ -34,7 +34,7 @@ class LikeRepositoryTest {
         User user2 = TestStubUtil.createUser();
         userRepository.save(user2);
 
-        Post post = TestStubUtil.createPost(user1);
+        Post post = TestStubUtil.createPost(user1, null);
         postRepository.save(post);
 
         Like like1 = TestStubUtil.createLike(user1, post);

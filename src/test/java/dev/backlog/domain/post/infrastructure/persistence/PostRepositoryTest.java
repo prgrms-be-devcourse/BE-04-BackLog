@@ -38,7 +38,7 @@ class PostRepositoryTest {
         userRepository.save(user);
 
         int postCount = 30;
-        List<Post> posts = TestStubUtil.createPosts(user, postCount);
+        List<Post> posts = TestStubUtil.createPosts(user, null, postCount);
         postRepository.saveAll(posts);
         posts.stream()
                 .forEach(post -> {
