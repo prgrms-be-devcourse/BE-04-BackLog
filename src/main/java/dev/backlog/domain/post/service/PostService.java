@@ -75,12 +75,14 @@ public class PostService {
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
 
         Slice<PostSummaryResponse> postSummaryResponses = postRepository.findLikedPostsByUserId(user.getId(), pageable)
-                .map(post -> {
-                    int commentCount = commentRepository.countByPost(post);
-                    int likeCount = likeRepository.countByPost(post);
-                    return PostSummaryResponse.of(post, commentCount, likeCount);
-                });
+                .map(this::getPostSummaryResponse);
         return PostSliceResponse.from(postSummaryResponses);
+    }
+
+    private PostSummaryResponse getPostSummaryResponse(Post post) {
+        int commentCount = commentRepository.countByPost(post);
+        int likeCount = likeRepository.countByPost(post);
+        return PostSummaryResponse.of(post, commentCount, likeCount);
     }
 
 }
