@@ -1,6 +1,6 @@
 package dev.backlog.domain.post.infrastructure.persistence;
 
-import dev.backlog.common.util.TestStubUtil;
+import dev.backlog.common.util.TestFixtureUtil;
 import dev.backlog.domain.like.infrastructure.persistence.LikeRepository;
 import dev.backlog.domain.like.model.Like;
 import dev.backlog.domain.post.model.Post;
@@ -34,15 +34,15 @@ class PostRepositoryTest {
     @Test
     void findLikedPostsByUserId() {
         //given
-        User user = TestStubUtil.createUser();
+        User user = TestFixtureUtil.createUser();
         userRepository.save(user);
 
         int postCount = 30;
-        List<Post> posts = TestStubUtil.createPosts(user, null, postCount);
+        List<Post> posts = TestFixtureUtil.createPosts(user, null, postCount);
         postRepository.saveAll(posts);
         posts.stream()
                 .forEach(post -> {
-                    Like like = TestStubUtil.createLike(user, post);
+                    Like like = TestFixtureUtil.createLike(user, post);
                     likeRepository.save(like);
                 });
 

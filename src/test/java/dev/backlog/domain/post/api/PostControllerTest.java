@@ -1,7 +1,7 @@
 package dev.backlog.domain.post.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.backlog.common.util.TestStubUtil;
+import dev.backlog.common.util.TestFixtureUtil;
 import dev.backlog.domain.comment.model.Comment;
 import dev.backlog.domain.post.dto.PostCreateRequest;
 import dev.backlog.domain.post.dto.PostResponse;
@@ -83,19 +83,19 @@ class PostControllerTest {
         Long comment2Id = 2L;
         Long seriesId = 1L;
 
-        User user = TestStubUtil.createUser();
+        User user = TestFixtureUtil.createUser();
         ReflectionTestUtils.setField(user, "id", userId);
 
-        Series series = TestStubUtil.createSeries(user);
+        Series series = TestFixtureUtil.createSeries(user);
         ReflectionTestUtils.setField(series, "id", seriesId);
 
-        Post post = TestStubUtil.createPost(user, series);
+        Post post = TestFixtureUtil.createPost(user, series);
         ReflectionTestUtils.setField(post, "id", postId);
 
-        Comment comment1 = TestStubUtil.createComment(user, post);
+        Comment comment1 = TestFixtureUtil.createComment(user, post);
         ReflectionTestUtils.setField(comment1, "id", comment1Id);
 
-        Comment comment2 = TestStubUtil.createComment(user, post);
+        Comment comment2 = TestFixtureUtil.createComment(user, post);
         ReflectionTestUtils.setField(comment2, "id", comment2Id);
 
         PostResponse postResponse = PostResponse.from(post, List.of(comment1, comment2));
@@ -124,10 +124,10 @@ class PostControllerTest {
     void findLikedPosts() throws Exception {
         //given
         Long userId = 1L;
-        User user = TestStubUtil.createUser();
+        User user = TestFixtureUtil.createUser();
 
         int postCount = 10;
-        List<Post> posts = TestStubUtil.createPosts(user, null, postCount);
+        List<Post> posts = TestFixtureUtil.createPosts(user, null, postCount);
 
         int page = 1;
         int size = 20;

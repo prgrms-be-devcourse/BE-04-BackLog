@@ -2,7 +2,7 @@ package dev.backlog.domain.post.service;
 
 import dev.backlog.common.config.JpaConfig;
 import dev.backlog.common.config.TestContainerConfig;
-import dev.backlog.common.util.TestStubUtil;
+import dev.backlog.common.util.TestFixtureUtil;
 import dev.backlog.domain.comment.infrastructure.persistence.CommentRepository;
 import dev.backlog.domain.comment.model.Comment;
 import dev.backlog.domain.like.infrastructure.persistence.LikeRepository;
@@ -62,14 +62,14 @@ class PostServiceTest {
     @Test
     void findPostById() {
         //given
-        User user = TestStubUtil.createUser();
+        User user = TestFixtureUtil.createUser();
         userRepository.save(user);
 
-        Post post = TestStubUtil.createPost(user, null);
+        Post post = TestFixtureUtil.createPost(user, null);
         postRepository.save(post);
 
-        Comment comment1 = TestStubUtil.createComment(user, post);
-        Comment comment2 = TestStubUtil.createComment(user, post);
+        Comment comment1 = TestFixtureUtil.createComment(user, post);
+        Comment comment2 = TestFixtureUtil.createComment(user, post);
         commentRepository.saveAll(List.of(comment1, comment2));
 
         //when
@@ -83,14 +83,14 @@ class PostServiceTest {
     @Test
     void sameUserCannotIncreaseViewCountForSamePostWithin3Hours() {
         //given
-        User user = TestStubUtil.createUser();
+        User user = TestFixtureUtil.createUser();
         User savedUser = userRepository.save(user);
 
-        Post post = TestStubUtil.createPost(user, null);
+        Post post = TestFixtureUtil.createPost(user, null);
         Post savedPost = postRepository.save(post);
 
-        Comment comment1 = TestStubUtil.createComment(user, post);
-        Comment comment2 = TestStubUtil.createComment(user, post);
+        Comment comment1 = TestFixtureUtil.createComment(user, post);
+        Comment comment2 = TestFixtureUtil.createComment(user, post);
         commentRepository.saveAll(List.of(comment1, comment2));
 
         //when
@@ -107,7 +107,7 @@ class PostServiceTest {
     @DisplayName("포스트 생성요청과 유저의 아이디를 받아 게시물을 저장할 수 있다.")
     @Test
     void createTest() {
-        User user = TestStubUtil.createUser();
+        User user = TestFixtureUtil.createUser();
         User savedUser = userRepository.save(user);
 
         PostCreateRequest request = new PostCreateRequest(
@@ -129,15 +129,15 @@ class PostServiceTest {
     @Test
     void findLikedPostsByUser() {
         //given
-        User user = TestStubUtil.createUser();
+        User user = TestFixtureUtil.createUser();
         userRepository.save(user);
 
         int postCount = 30;
-        List<Post> posts = TestStubUtil.createPosts(user, null, postCount);
+        List<Post> posts = TestFixtureUtil.createPosts(user, null, postCount);
         postRepository.saveAll(posts);
         posts.stream()
                 .forEach(post -> {
-                    Like like = TestStubUtil.createLike(user, post);
+                    Like like = TestFixtureUtil.createLike(user, post);
                     likeRepository.save(like);
                 });
 

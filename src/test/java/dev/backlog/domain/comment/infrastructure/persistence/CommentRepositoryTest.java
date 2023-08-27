@@ -1,6 +1,6 @@
 package dev.backlog.domain.comment.infrastructure.persistence;
 
-import dev.backlog.common.util.TestStubUtil;
+import dev.backlog.common.util.TestFixtureUtil;
 import dev.backlog.domain.comment.model.Comment;
 import dev.backlog.domain.post.infrastructure.persistence.PostRepository;
 import dev.backlog.domain.post.model.Post;
@@ -31,14 +31,14 @@ class CommentRepositoryTest {
     @Test
     void findAllByPost() {
         //given
-        User user = TestStubUtil.createUser();
+        User user = TestFixtureUtil.createUser();
         userRepository.save(user);
 
-        Post post = TestStubUtil.createPost(user, null);
+        Post post = TestFixtureUtil.createPost(user, null);
         postRepository.save(post);
 
-        Comment comment1 = TestStubUtil.createComment(user, post);
-        Comment comment2 = TestStubUtil.createComment(user, post);
+        Comment comment1 = TestFixtureUtil.createComment(user, post);
+        Comment comment2 = TestFixtureUtil.createComment(user, post);
         commentRepository.saveAll(List.of(comment1, comment2));
 
         //when
@@ -53,14 +53,14 @@ class CommentRepositoryTest {
     @Test
     void countByPost() {
         //given
-        User user = TestStubUtil.createUser();
+        User user = TestFixtureUtil.createUser();
         userRepository.save(user);
 
-        Post post = TestStubUtil.createPost(user, null);
+        Post post = TestFixtureUtil.createPost(user, null);
         postRepository.save(post);
 
-        Comment comment1 = TestStubUtil.createComment(user, post);
-        Comment comment2 = TestStubUtil.createComment(user, post);
+        Comment comment1 = TestFixtureUtil.createComment(user, post);
+        Comment comment2 = TestFixtureUtil.createComment(user, post);
         commentRepository.saveAll(List.of(comment1, comment2));
 
         //when
