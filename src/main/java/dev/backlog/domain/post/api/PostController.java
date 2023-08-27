@@ -3,8 +3,13 @@ package dev.backlog.domain.post.api;
 
 import dev.backlog.domain.post.dto.PostCreateRequest;
 import dev.backlog.domain.post.dto.PostResponse;
+import dev.backlog.domain.post.dto.PostSliceResponse;
+import dev.backlog.domain.post.dto.PostSummaryResponse;
 import dev.backlog.domain.post.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +40,12 @@ public class PostController {
     @ResponseStatus(HttpStatus.OK)
     public PostResponse findPost(@PathVariable Long postId, Long userId) {
         return postService.findPostById(postId, userId);
+    }
+
+    @GetMapping("/like")
+    @ResponseStatus(HttpStatus.OK)
+    public PostSliceResponse<PostSummaryResponse> findLikedPosts(Long userId, @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return postService.findLikedPostsByUser(userId, pageable);
     }
 
 }

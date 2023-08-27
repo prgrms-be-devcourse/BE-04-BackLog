@@ -2,8 +2,11 @@ package dev.backlog.domain.post.service;
 
 import dev.backlog.domain.comment.infrastructure.persistence.CommentRepository;
 import dev.backlog.domain.comment.model.Comment;
+import dev.backlog.domain.like.infrastructure.persistence.LikeRepository;
 import dev.backlog.domain.post.dto.PostCreateRequest;
 import dev.backlog.domain.post.dto.PostResponse;
+import dev.backlog.domain.post.dto.PostSliceResponse;
+import dev.backlog.domain.post.dto.PostSummaryResponse;
 import dev.backlog.domain.post.infrastructure.persistence.PostRepository;
 import dev.backlog.domain.post.model.Post;
 import dev.backlog.domain.series.infrastructure.persistence.SeriesRepository;
@@ -11,6 +14,8 @@ import dev.backlog.domain.series.model.Series;
 import dev.backlog.domain.user.infrastructure.persistence.UserRepository;
 import dev.backlog.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +36,7 @@ public class PostService {
     private final RedisTemplate<String, String> redisTemplate;
     private final UserRepository userRepository;
     private final SeriesRepository seriesRepository;
+    private final LikeRepository likeRepository;
 
     @Transactional
     public PostResponse findPostById(Long postId, Long userId) {
@@ -62,6 +68,21 @@ public class PostService {
             postHashtagService.save(request.hashtags(), post);
         }
         return savedPost.getId();
+    }
+
+    public PostSliceResponse<PostSummaryResponse> findLikedPostsByUser(Long userId, Pageable pageable) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+
+        Slice<PostSummaryResponse> postSummaryResponses = postRepository.findLikedPostsByUserId(user.getId(), pageable)
+                .map(this::getPostSummaryResponse);
+        return PostSliceResponse.from(postSummaryResponses);
+    }
+
+    private PostSummaryResponse getPostSummaryResponse(Post post) {
+        int commentCount = commentRepository.countByPost(post);
+        int likeCount = likeRepository.countByPost(post);
+        return PostSummaryResponse.of(post, commentCount, likeCount);
     }
 
 }
