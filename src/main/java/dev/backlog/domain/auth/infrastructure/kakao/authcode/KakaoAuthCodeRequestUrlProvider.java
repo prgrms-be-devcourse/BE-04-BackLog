@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import static dev.backlog.domain.auth.config.AuthConfig.RESPONSE_TYPE;
+import static dev.backlog.domain.auth.infrastructure.kakao.config.KakaoOauthConfig.AUTHORIZE_URL;
 
 @Component
 @RequiredArgsConstructor
@@ -23,7 +24,7 @@ public class KakaoAuthCodeRequestUrlProvider implements AuthCodeRequestUrlProvid
     @Override
     public String provide() {
         return UriComponentsBuilder
-                .fromUriString(kakaoOauthConfig.getAuthorizeUrl())
+                .fromUriString(kakaoOauthConfig.getAuthUrl() + AUTHORIZE_URL)
                 .queryParam("response_type", RESPONSE_TYPE)
                 .queryParam("client_id", kakaoOauthConfig.getClientId())
                 .queryParam("redirect_uri", kakaoOauthConfig.getRedirectUrl())
