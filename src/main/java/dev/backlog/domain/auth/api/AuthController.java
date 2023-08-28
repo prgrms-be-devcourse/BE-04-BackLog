@@ -5,8 +5,8 @@ import dev.backlog.domain.auth.model.oauth.OAuthProvider;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,7 +19,7 @@ public class AuthController {
 
     private final OAuthService oAuthService;
 
-    @PostMapping("/{oAuthProvider}")
+    @GetMapping("/{oAuthProvider}")
     public ResponseEntity<Void> redirectAuthCodeRequestUrl(@PathVariable OAuthProvider oAuthProvider, HttpServletResponse response) throws IOException {
         String redirectUrl = oAuthService.getAuthCodeRequestUrl(oAuthProvider);
         response.sendRedirect(redirectUrl);
