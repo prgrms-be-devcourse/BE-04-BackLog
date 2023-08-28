@@ -8,10 +8,12 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    @Query("SELECT p " +
-            "FROM Post p " +
-            "INNER JOIN Like l ON l.post.id = p.id " +
-            "WHERE p.isPublic = true AND l.user.id = :userId ")
+    @Query("""
+            SELECT p 
+            FROM Post p 
+            INNER JOIN Like l ON l.post.id = p.id 
+            WHERE p.isPublic = true AND l.user.id = :userId 
+           """)
     Slice<Post> findLikedPostsByUserId(Long userId, Pageable pageable);
 
 }
