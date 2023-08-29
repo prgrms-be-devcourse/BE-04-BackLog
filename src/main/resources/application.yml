@@ -29,3 +29,8 @@ oauth:
       auth: https://kauth.kakao.com
       api: https://kapi.kakao.com
       redirect: http://localhost:8080/oauth/redirected/kakao
+
+springdoc:
+  swagger-ui:
+    url: ${SWAGGER_UI_URL}
+    path: ${SWAGGER_UI_PATH}
