@@ -90,4 +90,33 @@ public class Post extends BaseEntity {
         this.viewCount = viewCount;
     }
 
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
+
+    public void updateSummary(String summary) {
+        this.summary = summary;
+    }
+
+    public void updateIsPublic(boolean isPublic) {
+        this.isPublic = isPublic;
+    }
+
+
+    public void updateThumbnailImage(String thumbnailImage) {
+        this.thumbnailImage = thumbnailImage;
+    }
+
+    public void updatePath(String path) {
+        this.path = path;
+    }
+
+    public void updateSeries(Series series) {
+        this.series = series;
+    }
+
 }

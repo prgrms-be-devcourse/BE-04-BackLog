@@ -7,6 +7,7 @@ import dev.backlog.domain.post.dto.PostCreateRequest;
 import dev.backlog.domain.post.dto.PostResponse;
 import dev.backlog.domain.post.dto.PostSliceResponse;
 import dev.backlog.domain.post.dto.PostSummaryResponse;
+import dev.backlog.domain.post.dto.PostUpdateRequest;
 import dev.backlog.domain.post.infrastructure.persistence.PostRepository;
 import dev.backlog.domain.post.model.Post;
 import dev.backlog.domain.series.infrastructure.persistence.SeriesRepository;
@@ -77,6 +78,31 @@ public class PostService {
         Slice<PostSummaryResponse> postSummaryResponses = postRepository.findLikedPostsByUserId(user.getId(), pageable)
                 .map(this::getPostSummaryResponse);
         return PostSliceResponse.from(postSummaryResponses);
+    }
+
+    @Transactional
+    public void updatePost(PostUpdateRequest request, Long postId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다."));
+        updatePost(request, post);
+        Series series = seriesRepository.findByUserAndName(user, request.series())
+                .orElse(null);
+        post.updateSeries(series);
+        postHashtagService.deleteAllByPost(post);
+        if (request.hashtags() != null) {
+            postHashtagService.save(request.hashtags(), post);
+        }
+    }
+
+    private void updatePost(PostUpdateRequest request, Post post) {
+        post.updateTitle(request.title());
+        post.updateContent(request.content());
+        post.updateSummary(request.summary());
+        post.updateIsPublic(request.isPublic());
+        post.updateThumbnailImage(request.thumbnailImage());
+        post.updatePath(request.path());
     }
 
     private PostSummaryResponse getPostSummaryResponse(Post post) {
