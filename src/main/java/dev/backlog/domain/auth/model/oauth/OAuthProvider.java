@@ -6,7 +6,7 @@ public enum OAuthProvider {
     KAKAO,
     ;
 
-    public static OAuthProvider fromName(String type) {
+    public static OAuthProvider from(String type) {
         return OAuthProvider.valueOf(type.toUpperCase(ENGLISH));
     }
 
