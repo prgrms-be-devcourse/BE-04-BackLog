@@ -27,7 +27,7 @@ public class AuthCodeRequestUrlProviderComposite {
         return getProvider(oAuthProvider).provide();
     }
 
-    public AuthCodeRequestUrlProvider getProvider(OAuthProvider oAuthProvider) {
+    private AuthCodeRequestUrlProvider getProvider(OAuthProvider oAuthProvider) {
         return Optional.ofNullable(mapping.get(oAuthProvider))
                 .orElseThrow(() -> new IllegalArgumentException("지원하지 않는 로그인 타입입니다."));
     }
