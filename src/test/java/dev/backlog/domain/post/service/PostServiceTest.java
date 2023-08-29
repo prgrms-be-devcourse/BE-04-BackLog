@@ -18,7 +18,6 @@ import dev.backlog.domain.user.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -31,9 +30,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Import(value = {JpaConfig.class})
-@ExtendWith(TestContainerConfig.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class PostServiceTest {
+@SpringBootTest
+class PostServiceTest extends TestContainerConfig {
 
     @Autowired
     private PostService postService;
