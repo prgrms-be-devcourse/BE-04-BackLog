@@ -1,5 +1,6 @@
 package dev.backlog.domain.user.model;
 
+import dev.backlog.domain.auth.model.oauth.OAuthProvider;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
