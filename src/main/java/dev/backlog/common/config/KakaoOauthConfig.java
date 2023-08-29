@@ -2,6 +2,7 @@ package dev.backlog.common.config;
 
 import dev.backlog.domain.auth.infrastructure.kakao.config.KakaoUrlProperties;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,8 @@ public class KakaoOauthConfig {
     public static final String REQUEST_INFO_URL = "/v2/user/me";
 
     private KakaoUrlProperties url;
+
+    @Value("${oauth.kakao.client-id}")
     private String clientId;
 
 }
