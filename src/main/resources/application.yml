@@ -28,4 +28,4 @@ oauth:
     url:
       auth: https://kauth.kakao.com
       api: https://kapi.kakao.com
-
+      redirect: http://localhost:8080/oauth/redirected/kakao

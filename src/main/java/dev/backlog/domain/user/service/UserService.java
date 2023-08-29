@@ -1,6 +1,6 @@
 package dev.backlog.domain.user.service;
 
-import dev.backlog.domain.auth.infrastructure.JwtTokenProvider;
+import dev.backlog.domain.auth.model.oauth.JwtTokenProvider;
 import dev.backlog.domain.user.dto.UserDetailsResponse;
 import dev.backlog.domain.user.dto.UserResponse;
 import dev.backlog.domain.user.infrastructure.persistence.UserRepository;
