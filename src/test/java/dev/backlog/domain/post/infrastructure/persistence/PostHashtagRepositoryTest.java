@@ -33,7 +33,7 @@ class PostHashtagRepositoryTest {
 
     private User 유저1;
     private Post 게시물1;
-    private List<Hashtag> 해쉬_태그;
+    private List<Hashtag> 해쉬태그;
 
     @BeforeEach
     void setUp() {
@@ -58,7 +58,7 @@ class PostHashtagRepositoryTest {
                 .path("경로")
                 .build();
 
-        해쉬_태그 = createHashtags("해쉬태그", "해쉬태그1", "해쉬태그2", "해쉬태그3");
+        해쉬태그 = createHashtags("해쉬태그", "해쉬태그1", "해쉬태그2", "해쉬태그3");
     }
 
     @DisplayName("PostHashtag에서 Post를 찾아 PostHashtag를 삭제한다.")
@@ -66,8 +66,8 @@ class PostHashtagRepositoryTest {
     void deleteAllByPostTest() {
         userRepository.save(유저1);
         postRepository.save(게시물1);
-        hashtagRepository.saveAll(해쉬_태그);
-        List<PostHashtag> postHashtags = createPostHashtags(게시물1, 해쉬_태그);
+        hashtagRepository.saveAll(해쉬태그);
+        List<PostHashtag> postHashtags = createPostHashtags(게시물1, 해쉬태그);
         postHashtagRepository.saveAll(postHashtags);
 
         postHashtagRepository.deleteAllByPost(게시물1);
@@ -75,6 +75,20 @@ class PostHashtagRepositoryTest {
         List<PostHashtag> findPostHashtag = postHashtagRepository.findByPost(게시물1);
         assertThat(findPostHashtag).isEmpty();
     }
+    
+    @DisplayName("게시물로 게시물에 등록된 해쉬태그를 검색할 수 있다.")
+    @Test
+    void findByPostTest(){
+        userRepository.save(유저1);
+        postRepository.save(게시물1);
+        hashtagRepository.saveAll(해쉬태그);
+        List<PostHashtag> postHashtags = createPostHashtags(게시물1, 해쉬태그);
+        postHashtagRepository.saveAll(postHashtags);
+
+        List<PostHashtag> 포스트_해쉬태그 = postHashtagRepository.findByPost(게시물1);
+
+        assertThat(포스트_해쉬태그).hasSize(해쉬태그.size());
+     }
 
     private List<Hashtag> createHashtags(String... 해쉬태그) {
         return Arrays.stream(해쉬태그)
