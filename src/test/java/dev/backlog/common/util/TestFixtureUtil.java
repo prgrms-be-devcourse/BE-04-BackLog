@@ -1,11 +1,11 @@
 package dev.backlog.common.util;
 
+import dev.backlog.domain.auth.model.oauth.OAuthProvider;
 import dev.backlog.domain.comment.model.Comment;
 import dev.backlog.domain.like.model.Like;
 import dev.backlog.domain.post.model.Post;
 import dev.backlog.domain.series.model.Series;
 import dev.backlog.domain.user.model.Email;
-import dev.backlog.domain.user.model.OAuthProvider;
 import dev.backlog.domain.user.model.User;
 
 import java.util.ArrayList;

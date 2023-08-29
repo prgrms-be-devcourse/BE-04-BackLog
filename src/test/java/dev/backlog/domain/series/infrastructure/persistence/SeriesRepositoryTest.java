@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import static dev.backlog.domain.user.model.OAuthProvider.KAKAO;
+import static dev.backlog.domain.auth.model.oauth.OAuthProvider.KAKAO;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
