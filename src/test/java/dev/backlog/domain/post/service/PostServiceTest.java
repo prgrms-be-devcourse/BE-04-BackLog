@@ -58,6 +58,7 @@ class PostServiceTest extends TestContainerConfig {
         likeRepository.deleteAll();
         commentRepository.deleteAll();
         postRepository.deleteAll();
+        seriesRepository.deleteAll();
         userRepository.deleteAll();
     }
 
