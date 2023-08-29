@@ -1,19 +1,20 @@
 package dev.backlog.domain.post.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.epages.restdocs.apispec.Schema;
+import dev.backlog.common.config.ControllerTestConfig;
 import dev.backlog.common.util.TestFixtureUtil;
 import dev.backlog.domain.comment.model.Comment;
 import dev.backlog.domain.post.dto.PostCreateRequest;
 import dev.backlog.domain.post.dto.PostResponse;
 import dev.backlog.domain.post.dto.PostSliceResponse;
 import dev.backlog.domain.post.dto.PostSummaryResponse;
+import dev.backlog.domain.post.dto.PostUpdateRequest;
 import dev.backlog.domain.post.model.Post;
 import dev.backlog.domain.post.service.PostService;
 import dev.backlog.domain.series.model.Series;
 import dev.backlog.domain.user.model.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
@@ -21,32 +22,37 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import java.util.List;
+import java.util.Set;
 
+import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
+import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.resourceDetails;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(PostController.class)
-class PostControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
+class PostControllerTest extends ControllerTestConfig {
 
     @MockBean
     private PostService postService;
-
-    private ObjectMapper objectMapper = new ObjectMapper();
 
     @DisplayName("게시물 생성 요청을 받아 처리 후 201 코드를 반환하고 게시물 조회 URI를 반환한다.")
     @Test
@@ -153,6 +159,48 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.hasNext").value(false))
                 .andExpect(jsonPath("$.data", hasSize(postCount)))
                 .andDo(MockMvcResultHandlers.print());
+    }
+
+    @DisplayName("사용자의 게시물 업데이트 요청을 받아 업데이트 한 뒤 204 상태코드를 반환한다.")
+    @Test
+    void updatePostTest() throws Exception {
+        Long postId = 1L;
+        PostUpdateRequest request = getPostUpdateRequest();
+        System.out.println("asdasdasdasd" + objectMapper.writeValueAsString(request));
+        doNothing().when(postService).updatePost(any(PostUpdateRequest.class), anyLong(), anyLong());
+
+        mockMvc.perform(put("/api/posts/{postId}", postId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNoContent())
+                .andDo(document("post-update",
+                                resourceDetails().tag("게시물").description("게시물 업데이트")
+                                        .requestSchema(Schema.schema("PostUpdateRequest")),
+                                pathParameters(parameterWithName("postId").description("게시물 식별자")),
+                                requestFields(
+                                        fieldWithPath("series").type(JsonFieldType.STRING).description("시리즈"),
+                                        fieldWithPath("title").type(JsonFieldType.STRING).description("제목"),
+                                        fieldWithPath("content").type(JsonFieldType.STRING).description("내용"),
+                                        fieldWithPath("hashtags").type(JsonFieldType.ARRAY).description("해시태그"),
+                                        fieldWithPath("summary").type(JsonFieldType.STRING).description("요약"),
+                                        fieldWithPath("isPublic").type(JsonFieldType.BOOLEAN).description("공개 여부"),
+                                        fieldWithPath("thumbnailImage").type(JsonFieldType.STRING).description("썸네일 URL"),
+                                        fieldWithPath("path").type(JsonFieldType.STRING).description("게시물 경로"))
+                        )
+                );
+    }
+
+    private PostUpdateRequest getPostUpdateRequest() {
+        return new PostUpdateRequest(
+                "시리즈",
+                "변경된 제목",
+                "변경된 내용",
+                Set.of("변경된 해쉬태그"),
+                "변경된 요약",
+                false,
+                "변경된 URL",
+                "변경된 경로"
+        );
     }
 
 }
