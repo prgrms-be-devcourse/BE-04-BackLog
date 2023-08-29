@@ -1,6 +1,5 @@
 package dev.backlog.domain.auth.config;
 
-import dev.backlog.domain.auth.infrastructure.kakao.config.KakaoUrlProperties;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;

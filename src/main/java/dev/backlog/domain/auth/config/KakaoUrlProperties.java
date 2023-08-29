@@ -1,4 +1,4 @@
-package dev.backlog.domain.auth.infrastructure.kakao.config;
+package dev.backlog.domain.auth.config;
 
 import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
