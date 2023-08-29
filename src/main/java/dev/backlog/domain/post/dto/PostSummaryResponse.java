@@ -5,6 +5,7 @@ import dev.backlog.domain.post.model.Post;
 import java.time.LocalDateTime;
 
 public record PostSummaryResponse(
+        Long postId,
         String thumbnailImage,
         String title,
         String summary,
@@ -16,6 +17,7 @@ public record PostSummaryResponse(
 
     public static PostSummaryResponse of(final Post post, final int commentCount, final int likeCount) {
         return new PostSummaryResponse(
+                post.getId(),
                 post.getThumbnailImage(),
                 post.getTitle(),
                 post.getSummary(),
