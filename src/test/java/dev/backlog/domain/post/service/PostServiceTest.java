@@ -196,7 +196,6 @@ class PostServiceTest extends TestContainerConfig {
                 () -> assertThat(변경된_게시물.getPath()).isEqualTo("변경된 경로"),
                 () -> assertThat(postHashtags.size()).isOne()
         );
-
     }
 
     private PostUpdateRequest getPostUpdateRequest() {

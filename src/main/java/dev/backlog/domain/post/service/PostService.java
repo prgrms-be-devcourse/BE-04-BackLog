@@ -86,7 +86,7 @@ public class PostService {
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다."));
-        updatePost(request, post);
+        updatePostByRequest(post, request);
         Series series = seriesRepository.findByUserAndName(user, request.series())
                 .orElse(null);
         post.updateSeries(series);
@@ -96,7 +96,7 @@ public class PostService {
         }
     }
 
-    private void updatePost(PostUpdateRequest request, Post post) {
+    private void updatePostByRequest(Post post, PostUpdateRequest request) {
         post.updateTitle(request.title());
         post.updateContent(request.content());
         post.updateSummary(request.summary());
