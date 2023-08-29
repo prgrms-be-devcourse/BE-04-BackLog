@@ -1,4 +1,4 @@
-package dev.backlog.domain.auth.infrastructure;
+package dev.backlog.domain.auth.model.oauth;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -45,8 +45,7 @@ public class JwtTokenProvider {
                     .parseClaimsJws(accessToken)
                     .getBody();
         } catch (ExpiredJwtException e) {
-            log.info("Expired JWT token.");
-            return e.getClaims();
+            throw new IllegalArgumentException("만료된 토큰입니다.");
         }
     }
 
