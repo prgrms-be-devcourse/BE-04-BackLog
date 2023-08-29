@@ -1,18 +1,19 @@
 package dev.backlog.domain.auth.infrastructure.kakao.authcode;
 
-import dev.backlog.common.config.KakaoOauthConfig;
-import dev.backlog.domain.auth.model.oauth.authcode.AuthCodeRequestUrlProvider;
+import dev.backlog.domain.auth.config.KakaoOauthConfig;
 import dev.backlog.domain.auth.model.oauth.OAuthProvider;
+import dev.backlog.domain.auth.model.oauth.authcode.AuthCodeRequestUrlProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import static dev.backlog.common.config.AuthConfig.RESPONSE_TYPE;
-import static dev.backlog.common.config.KakaoOauthConfig.AUTHORIZE_URL;
+import static dev.backlog.domain.auth.config.KakaoOauthConfig.AUTHORIZE_URL;
 
 @Component
 @RequiredArgsConstructor
 public class KakaoAuthCodeRequestUrlProvider implements AuthCodeRequestUrlProvider {
+
+    private static final String RESPONSE_TYPE = "code";
 
     private final KakaoOauthConfig kakaoOauthConfig;
 
