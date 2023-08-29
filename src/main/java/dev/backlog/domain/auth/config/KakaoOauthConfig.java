@@ -1,4 +1,4 @@
-package dev.backlog.common.config;
+package dev.backlog.domain.auth.config;
 
 import dev.backlog.domain.auth.infrastructure.kakao.config.KakaoUrlProperties;
 import lombok.Getter;
