@@ -8,7 +8,7 @@ public class OAuthProviderConverter implements Converter<String, OAuthProvider> 
 
     @Override
     public OAuthProvider convert(@NotNull String provider) {
-        return OAuthProvider.fromName(provider);
+        return OAuthProvider.from(provider);
     }
 
 }
