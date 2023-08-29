@@ -87,8 +87,23 @@ class PostHashtagRepositoryTest {
 
         List<PostHashtag> 포스트_해쉬태그 = postHashtagRepository.findByPost(게시물1);
 
+        포스트_해쉬태그.forEach(a -> System.out.println(a.getHashtag()));
         assertThat(포스트_해쉬태그).hasSize(해쉬태그.size());
      }
+
+    @DisplayName("해쉬태그를 통해 사용되고 있는 게시물이 없다면 True를 반환한다.")
+    @Test
+    void existsByHashtagTest() {
+        userRepository.save(유저1);
+        postRepository.save(게시물1);
+        hashtagRepository.saveAll(해쉬태그);
+        List<PostHashtag> postHashtags = createPostHashtags(게시물1, 해쉬태그);
+        postHashtagRepository.saveAll(postHashtags);
+
+        Hashtag hashtag = 해쉬태그.get(0);
+        boolean 해쉬태그_유무 = postHashtagRepository.existsByHashtag(hashtag);
+        assertThat(해쉬태그_유무).isTrue();
+    }
 
     private List<Hashtag> createHashtags(String... 해쉬태그) {
         return Arrays.stream(해쉬태그)
