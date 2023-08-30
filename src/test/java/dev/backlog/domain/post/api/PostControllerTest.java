@@ -210,6 +210,7 @@ class PostControllerTest extends ControllerTestConfig {
 
         mockMvc.perform(put("/api/posts/{postId}", postId)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("AuthrizationCode", "asdasd")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNoContent())
                 .andDo(document("post-update",
