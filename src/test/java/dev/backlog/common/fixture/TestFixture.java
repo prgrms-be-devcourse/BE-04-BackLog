@@ -5,6 +5,7 @@ import dev.backlog.domain.post.model.Post;
 import dev.backlog.domain.user.model.Email;
 import dev.backlog.domain.user.model.User;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -35,6 +36,15 @@ public class TestFixture {
                 .thumbnailImage("썸네일URL")
                 .path("경로")
                 .build();
+    }
+
+    public static List<Post> 게시물_모음(User user) {
+        List<Post> posts = new ArrayList<>();
+        for (int index = 0; index < 30; index++) {
+            Post post = 게시물1(user);
+            posts.add(post);
+        }
+        return posts;
     }
 
     public static List<Hashtag> 해쉬태그_모음() {
