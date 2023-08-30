@@ -5,6 +5,7 @@ import dev.backlog.domain.auth.service.OAuthService;
 import dev.backlog.domain.auth.model.oauth.OAuthProvider;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,7 +27,7 @@ public class AuthController {
         String redirectUrl = oAuthService.getAuthCodeRequestUrl(oAuthProvider);
         response.sendRedirect(redirectUrl);
 
-        return ResponseEntity.notFound().build();
+        return new ResponseEntity<>(HttpStatus.FOUND);
     }
 
     @GetMapping("/login/{oAuthProvider}")
