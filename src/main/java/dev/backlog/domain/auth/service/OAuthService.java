@@ -1,7 +1,7 @@
 package dev.backlog.domain.auth.service;
 
-import dev.backlog.domain.auth.model.oauth.authcode.AuthCodeRequestUrlProviderComposite;
 import dev.backlog.domain.auth.model.oauth.OAuthProvider;
+import dev.backlog.domain.auth.model.oauth.authcode.AuthCodeRequestUrlProviderComposite;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

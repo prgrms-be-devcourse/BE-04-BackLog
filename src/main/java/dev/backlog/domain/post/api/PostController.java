@@ -44,13 +44,15 @@ public class PostController {
 
     @GetMapping("/like")
     @ResponseStatus(HttpStatus.OK)
-    public PostSliceResponse<PostSummaryResponse> findLikedPosts(Long userId, @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public PostSliceResponse<PostSummaryResponse> findLikedPosts(Long userId,
+                                                                 @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return postService.findLikedPostsByUser(userId, pageable);
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public PostSliceResponse<PostSummaryResponse> findSeriesPosts(String series, Long userId, @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
+    public PostSliceResponse<PostSummaryResponse> findSeriesPosts(String series, Long userId,
+                                                                  @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
         return postService.findPostsByUserAndSeries(userId, series, pageable);
     }
 
