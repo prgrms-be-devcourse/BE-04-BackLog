@@ -71,16 +71,6 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-tasks.withType(GenerateSwaggerUI) {
-	dependsOn 'openapi3'
-
-	delete file('src/main/resources/static/')
-	copy {
-		from "build/resources/main/static"
-		into "src/main/resources/static/"
-	}
-}
-
 openapi3 {
 	server = "http://localhost:8080"
 	title = "backlog API 문서"
