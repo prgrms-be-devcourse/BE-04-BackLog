@@ -79,6 +79,17 @@ public class PostService {
         return PostSliceResponse.from(postSummaryResponses);
     }
 
+    public PostSliceResponse<PostSummaryResponse> findPostsByUserAndSeries(Long userId, String seriesName, Pageable pageable) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+        Series series = seriesRepository.findByUserAndName(user, seriesName)
+                .orElse(null);
+
+        Slice<PostSummaryResponse> postSummaryResponses = postRepository.findAllByUserAndSeries(user, series, pageable)
+                .map(this::getPostSummaryResponse);
+        return PostSliceResponse.from(postSummaryResponses);
+    }
+
     private PostSummaryResponse getPostSummaryResponse(Post post) {
         int commentCount = commentRepository.countByPost(post);
         int likeCount = likeRepository.countByPost(post);

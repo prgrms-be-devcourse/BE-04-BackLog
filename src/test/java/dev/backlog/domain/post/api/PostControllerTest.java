@@ -129,7 +129,7 @@ class PostControllerTest {
         int postCount = 10;
         List<Post> posts = TestFixtureUtil.createPosts(user, null, postCount);
 
-        int page = 1;
+        int page = 0;
         int size = 20;
         PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
 
@@ -148,6 +148,45 @@ class PostControllerTest {
                         .param("page", String.valueOf(page))
                         .param("size", String.valueOf(size))
                         .param("sort", "createdAt,desc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.numberOfElements").value(postCount))
+                .andExpect(jsonPath("$.hasNext").value(false))
+                .andExpect(jsonPath("$.data", hasSize(postCount)))
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @DisplayName("사용자와 시리즈 이름으로 게시글 목록을 과거순으로 반환한다.")
+    @Test
+    void findSeriesPosts() throws Exception {
+        //given
+        Long userId = 1L;
+        User user = TestFixtureUtil.createUser();
+
+        Series series = TestFixtureUtil.createSeries(user);
+
+        int postCount = 10;
+        List<Post> posts = TestFixtureUtil.createPosts(user, series, postCount);
+
+        int page = 0;
+        int size = 20;
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.ASC, "createdAt");
+
+        int likeCount = 0;
+        int commentCount = 0;
+        Slice<Post> slice = new SliceImpl<>(posts, pageRequest, false);
+        Slice<PostSummaryResponse> postSummaryResponses = slice
+                .map(post -> PostSummaryResponse.of(post, commentCount, likeCount));
+
+        PostSliceResponse<PostSummaryResponse> postSliceResponse = PostSliceResponse.from(postSummaryResponses);
+        when(postService.findPostsByUserAndSeries(userId, series.getName(), pageRequest)).thenReturn(postSliceResponse);
+
+        //when, then
+        mockMvc.perform(get("/api/posts")
+                        .param("series", series.getName())
+                        .param("userId", String.valueOf(userId))
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size))
+                        .param("sort", "createdAt,asc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.numberOfElements").value(postCount))
                 .andExpect(jsonPath("$.hasNext").value(false))

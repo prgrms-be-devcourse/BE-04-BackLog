@@ -13,6 +13,8 @@ import dev.backlog.domain.post.dto.PostSliceResponse;
 import dev.backlog.domain.post.dto.PostSummaryResponse;
 import dev.backlog.domain.post.infrastructure.persistence.PostRepository;
 import dev.backlog.domain.post.model.Post;
+import dev.backlog.domain.series.infrastructure.persistence.SeriesRepository;
+import dev.backlog.domain.series.model.Series;
 import dev.backlog.domain.user.infrastructure.persistence.UserRepository;
 import dev.backlog.domain.user.model.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,11 +50,15 @@ class PostServiceTest extends TestContainerConfig {
     @Autowired
     private LikeRepository likeRepository;
 
+    @Autowired
+    private SeriesRepository seriesRepository;
+
     @BeforeEach
     void setUp() {
         likeRepository.deleteAll();
         commentRepository.deleteAll();
         postRepository.deleteAll();
+        seriesRepository.deleteAll();
         userRepository.deleteAll();
     }
 
@@ -148,6 +154,38 @@ class PostServiceTest extends TestContainerConfig {
         int expectedCount = 10;
 
         assertThat(postSliceResponse.data()).isSortedAccordingTo(Comparator.comparing(PostSummaryResponse::createdAt).reversed());
+        assertThat(postSliceResponse.hasNext()).isFalse();
+        assertThat(postSliceResponse.numberOfElements()).isEqualTo(expectedCount);
+    }
+
+    @DisplayName("사용자와 시리즈 이름으로 게시글들을 과거순으로 조회할 수 있다.")
+    @Test
+    void findPostsByUserAndSeries() {
+        //given
+        User user = TestFixtureUtil.createUser();
+        userRepository.save(user);
+
+        Series series = TestFixtureUtil.createSeries(user);
+        seriesRepository.save(series);
+
+        int postCount = 30;
+        List<Post> posts = TestFixtureUtil.createPosts(user, series, postCount);
+        postRepository.saveAll(posts);
+        posts.stream()
+                .forEach(post -> {
+                    Like like = TestFixtureUtil.createLike(user, post);
+                    likeRepository.save(like);
+                });
+
+        PageRequest pageRequest = PageRequest.of(1, 20, Sort.Direction.ASC, "createdAt");
+
+        //when
+        PostSliceResponse<PostSummaryResponse> postSliceResponse = postService.findPostsByUserAndSeries(user.getId(), series.getName(), pageRequest);
+
+        //then
+        int expectedCount = 10;
+
+        assertThat(postSliceResponse.data()).isSortedAccordingTo(Comparator.comparing(PostSummaryResponse::createdAt));
         assertThat(postSliceResponse.hasNext()).isFalse();
         assertThat(postSliceResponse.numberOfElements()).isEqualTo(expectedCount);
     }
