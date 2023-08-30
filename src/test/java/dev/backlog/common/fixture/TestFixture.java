@@ -82,6 +82,15 @@ public class TestFixture {
                 .build();
     }
 
+    public static List<Post> 게시물_모음(User user) {
+        List<Post> posts = new ArrayList<>();
+        for (int index = 0; index < 30; index++) {
+            Post post = 게시물1(user);
+            posts.add(post);
+        }
+        return posts;
+    }
+
     public static List<Hashtag> 해쉬태그_모음() {
         return createHashtags("해쉬태그", "해쉬태그1", "해쉬태그2", "해쉬태그3");
     }
