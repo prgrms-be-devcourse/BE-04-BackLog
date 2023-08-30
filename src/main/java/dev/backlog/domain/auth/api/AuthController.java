@@ -30,7 +30,7 @@ public class AuthController {
     }
 
     @GetMapping("/login/{oAuthProvider}")
-    public ResponseEntity<AuthTokens> login(@PathVariable OAuthProvider oAuthProvider, @RequestParam String code) { // 반환 타입 수정 예정
+    public ResponseEntity<AuthTokens> login(@PathVariable OAuthProvider oAuthProvider, @RequestParam String code) {
         return ResponseEntity.ok(oAuthService.login(oAuthProvider, code));
     }
 

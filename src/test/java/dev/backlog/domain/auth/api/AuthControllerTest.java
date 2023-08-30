@@ -1,5 +1,6 @@
 package dev.backlog.domain.auth.api;
 
+import com.epages.restdocs.apispec.Schema;
 import dev.backlog.domain.auth.AuthTokens;
 import dev.backlog.domain.auth.model.oauth.OAuthProvider;
 import dev.backlog.domain.auth.service.OAuthService;
@@ -62,7 +63,7 @@ class AuthControllerTest {
                 )
                 .andDo(print())
                 .andDo(document("auth-redirect",
-                                resourceDetails().tag("Auth").description("접근 권한 url 생성"),
+                                resourceDetails().tag("Auth").description("접근 권한 url 리다이렉트"),
                                 preprocessRequest(prettyPrint()),
                                 preprocessResponse(prettyPrint()),
                                 pathParameters(
@@ -101,21 +102,17 @@ class AuthControllerTest {
                         .param("code", code)
                 )
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").value(accessToken))
-                .andExpect(jsonPath("$.refreshToken").value(refreshToken))
-                .andExpect(jsonPath("$.grantType").value(grantType))
-                .andExpect(jsonPath("$.expiresIn").value(expiresIn))
                 .andDo(document("auth-login",
-                                resourceDetails().tag("Auth").description("로그인"),
+                                resourceDetails().tag("Auth").description("로그인")
+                                        .responseSchema(Schema.schema("AuthTokens")),
                                 preprocessRequest(prettyPrint()),
                                 preprocessResponse(prettyPrint()),
-                        pathParameters(
-                                parameterWithName("oAuthProvider").description("OAuth 로그인 타입")
-                        ),
-                        queryParameters(
-                                parameterWithName("code").description("인증 코드")
-                        ),
+                                pathParameters(
+                                        parameterWithName("oAuthProvider").description("OAuth 로그인 타입")
+                                ),
+                                queryParameters(
+                                        parameterWithName("code").description("인증 코드")
+                                ),
                                 responseFields(
                                         fieldWithPath("accessToken").type(JsonFieldType.STRING).description("액세스 토큰"),
                                         fieldWithPath("refreshToken").type(JsonFieldType.STRING).description("리프레시 토큰"),
@@ -123,6 +120,12 @@ class AuthControllerTest {
                                         fieldWithPath("expiresIn").type(JsonFieldType.NUMBER).description("토큰 만료 시간(초)")
                                 )
                         )
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value(accessToken))
+                .andExpect(jsonPath("$.refreshToken").value(refreshToken))
+                .andExpect(jsonPath("$.grantType").value(grantType))
+                .andExpect(jsonPath("$.expiresIn").value(expiresIn)
                 );
     }
 
