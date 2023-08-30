@@ -33,7 +33,6 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.response
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -61,7 +60,6 @@ class AuthControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                 )
-                .andDo(print())
                 .andDo(document("auth-redirect",
                                 resourceDetails().tag("Auth").description("접근 권한 url 리다이렉트"),
                                 preprocessRequest(prettyPrint()),
@@ -101,7 +99,6 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("code", code)
                 )
-                .andDo(print())
                 .andDo(document("auth-login",
                                 resourceDetails().tag("Auth").description("로그인")
                                         .responseSchema(Schema.schema("AuthTokens")),

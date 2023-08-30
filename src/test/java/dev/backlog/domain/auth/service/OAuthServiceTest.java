@@ -1,6 +1,6 @@
 package dev.backlog.domain.auth.service;
 
-import dev.backlog.common.util.TestFixtureUtil;
+import dev.backlog.common.fixture.TestFixture;
 import dev.backlog.domain.auth.AuthTokens;
 import dev.backlog.domain.auth.AuthTokensGenerator;
 import dev.backlog.domain.auth.model.oauth.OAuthProvider;
@@ -9,7 +9,6 @@ import dev.backlog.domain.auth.model.oauth.client.OAuthMemberClientComposite;
 import dev.backlog.domain.auth.model.oauth.dto.OAuthInfoResponse;
 import dev.backlog.domain.user.infrastructure.persistence.UserRepository;
 import dev.backlog.domain.user.model.User;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -18,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -44,11 +44,10 @@ class OAuthServiceTest {
     @Test
     void getAuthCodeReqeustUrlTest() {
         String expectedUrl = "https://example.com";
-        when(authCodeRequestUrlProviderComposite.provide(any())).thenReturn(expectedUrl);
+        when(authCodeRequestUrlProviderComposite.provide(OAuthProvider.KAKAO)).thenReturn(expectedUrl);
 
         String result = oAuthService.getAuthCodeRequestUrl(OAuthProvider.KAKAO);
-
-        Assertions.assertThat(expectedUrl).isEqualTo(result);
+        assertThat(expectedUrl).isEqualTo(result);
     }
 
     @DisplayName("로그인에 성공하면 토큰을 생성해 반환한다.")
@@ -60,7 +59,7 @@ class OAuthServiceTest {
         String grantType = "Bearer ";
         Long expiresIn = 1000L;
 
-        User user = TestFixtureUtil.createUser();
+        User user = TestFixture.유저1();
         OAuthInfoResponse response = OAuthInfoResponse.builder()
                 .nickname(user.getNickname())
                 .profileImage(user.getProfileImage())
@@ -68,7 +67,6 @@ class OAuthServiceTest {
                 .oAuthProvider(user.getOauthProvider())
                 .oAuthProviderId(user.getOauthProviderId())
                 .build();
-
 
         AuthTokens authToken = AuthTokens.builder()
                 .accessToken(accessToken)
@@ -84,10 +82,10 @@ class OAuthServiceTest {
         AuthTokens authTokens = oAuthService.login(OAuthProvider.KAKAO, authCode);
 
         assertAll(
-                () -> Assertions.assertThat(authTokens.getAccessToken()).isEqualTo(accessToken),
-                () -> Assertions.assertThat(authTokens.getRefreshToken()).isEqualTo(refreshToken),
-                () -> Assertions.assertThat(authTokens.getGrantType()).isEqualTo(grantType),
-                () -> Assertions.assertThat(authTokens.getExpiresIn()).isEqualTo(expiresIn)
+                () -> assertThat(authTokens.accessToken()).isEqualTo(accessToken),
+                () -> assertThat(authTokens.refreshToken()).isEqualTo(refreshToken),
+                () -> assertThat(authTokens.grantType()).isEqualTo(grantType),
+                () -> assertThat(authTokens.expiresIn()).isEqualTo(expiresIn)
         );
     }
 
