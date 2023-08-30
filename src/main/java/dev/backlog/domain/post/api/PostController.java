@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -63,6 +64,13 @@ public class PostController {
                                            @RequestBody PostUpdateRequest request,
                                            Long userId) {
         postService.updatePost(request, postId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Void> deletePost(@PathVariable Long postId,
+                                           Long userId) {
+        postService.deletePost(postId, userId);
         return ResponseEntity.noContent().build();
     }
 
