@@ -40,6 +40,8 @@ import static dev.backlog.common.fixture.TestFixture.게시물_모음;
 import static dev.backlog.common.fixture.TestFixture.댓글_모음;
 import static dev.backlog.common.fixture.TestFixture.시리즈1;
 import static dev.backlog.common.fixture.TestFixture.게시물_모음;
+import static dev.backlog.common.fixture.TestFixture.댓글_모음;
+import static dev.backlog.common.fixture.TestFixture.시리즈1;
 import static dev.backlog.common.fixture.TestFixture.유저1;
 import static dev.backlog.common.fixture.TestFixture.좋아요1;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,6 +77,8 @@ class PostServiceTest extends TestContainerConfig {
 
     private User 유저1;
     private Post 게시물1;
+    private List<Post> 게시물_모음;
+    private List<Comment> 댓글_모음;
     private List<Post> 게시물_목록;
     private List<Post> 게시물_모음;
     private List<Comment> 댓글_모음;
@@ -82,6 +86,9 @@ class PostServiceTest extends TestContainerConfig {
     @BeforeEach
     void setUp() {
         유저1 = 유저1();
+        게시물1 = 게시물1(유저1, null);
+        게시물_모음 = 게시물_모음(유저1, null);
+        댓글_모음 = 댓글_모음(유저1, 게시물1);
         게시물1 = 게시물1(유저1);
         게시물_목록 = 게시물_모음(유저1);
         유저1 = 유저1();
@@ -165,6 +172,11 @@ class PostServiceTest extends TestContainerConfig {
 
         List<Post> posts = postRepository.saveAll(게시물_모음);
         for (Post post : posts) {
+            Like 좋아요1 = 좋아요1(user, post);
+            likeRepository.save(좋아요1);
+        }
+        List<Post> posts = postRepository.saveAll(게시물_모음);
+        for (Post post : posts) {
             Like like = 좋아요1(user, post);
             likeRepository.save(like);
         }
@@ -201,6 +213,11 @@ class PostServiceTest extends TestContainerConfig {
                 () -> assertThat(postSliceResponse.hasNext()).isFalse(),
                 () -> assertThat(postSliceResponse.numberOfElements()).isEqualTo(postSliceResponse.data().size())
         );
+        assertAll(
+                () -> assertThat(postSliceResponse.data()).isSortedAccordingTo(Comparator.comparing(PostSummaryResponse::createdAt)),
+                () -> assertThat(postSliceResponse.hasNext()).isFalse(),
+                () -> assertThat(postSliceResponse.numberOfElements()).isEqualTo(postSliceResponse.data().size())
+        );
     }
 
     @DisplayName("최신 순서로 등록된 게시물 목록을 조회할 수 있다.")
@@ -228,7 +245,8 @@ class PostServiceTest extends TestContainerConfig {
     void findPostsInLatestOrder() {
         //given
         userRepository.save(유저1);
-        postRepository.saveAll(게시물_목록);
+        postRepository.saveAll(게시물_모음);
+
         PageRequest pageRequest = PageRequest.of(1, 20, Sort.Direction.DESC, "createdAt");
 
         //when
