@@ -31,12 +31,14 @@ import java.util.Set;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.resourceDetails;
+import static com.epages.restdocs.apispec.ResourceDocumentation.headerWithName;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -161,35 +163,6 @@ class PostControllerTest extends ControllerTestConfig {
                 .andDo(MockMvcResultHandlers.print());
     }
 
-    @DisplayName("사용자의 게시물 업데이트 요청을 받아 업데이트 한 뒤 204 상태코드를 반환한다.")
-    @Test
-    void updatePostTest() throws Exception {
-        Long postId = 1L;
-        PostUpdateRequest request = getPostUpdateRequest();
-        System.out.println("asdasdasdasd" + objectMapper.writeValueAsString(request));
-        doNothing().when(postService).updatePost(any(PostUpdateRequest.class), anyLong(), anyLong());
-
-        mockMvc.perform(put("/api/posts/{postId}", postId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isNoContent())
-                .andDo(document("post-update",
-                                resourceDetails().tag("게시물").description("게시물 업데이트")
-                                        .requestSchema(Schema.schema("PostUpdateRequest")),
-                                pathParameters(parameterWithName("postId").description("게시물 식별자")),
-                                requestFields(
-                                        fieldWithPath("series").type(JsonFieldType.STRING).description("시리즈"),
-                                        fieldWithPath("title").type(JsonFieldType.STRING).description("제목"),
-                                        fieldWithPath("content").type(JsonFieldType.STRING).description("내용"),
-                                        fieldWithPath("hashtags").type(JsonFieldType.ARRAY).description("해시태그"),
-                                        fieldWithPath("summary").type(JsonFieldType.STRING).description("요약"),
-                                        fieldWithPath("isPublic").type(JsonFieldType.BOOLEAN).description("공개 여부"),
-                                        fieldWithPath("thumbnailImage").type(JsonFieldType.STRING).description("썸네일 URL"),
-                                        fieldWithPath("path").type(JsonFieldType.STRING).description("게시물 경로"))
-                        )
-                );
-    }
-
     @DisplayName("사용자와 시리즈 이름으로 게시글 목록을 과거순으로 반환한다.")
     @Test
     void findSeriesPosts() throws Exception {
@@ -227,6 +200,35 @@ class PostControllerTest extends ControllerTestConfig {
                 .andExpect(jsonPath("$.hasNext").value(false))
                 .andExpect(jsonPath("$.data", hasSize(postCount)))
                 .andDo(MockMvcResultHandlers.print());
+    }
+
+    @DisplayName("사용자의 게시물 업데이트 요청을 받아 업데이트 한 뒤 204 상태코드를 반환한다.")
+    @Test
+    void updatePostTest() throws Exception {
+        Long postId = 1L;
+        PostUpdateRequest request = getPostUpdateRequest();
+        doNothing().when(postService).updatePost(any(PostUpdateRequest.class), anyLong(), anyLong());
+
+        mockMvc.perform(put("/api/posts/{postId}", postId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("AuthrizationCode", "asdasd")
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNoContent())
+                .andDo(document("post-update",
+                                resourceDetails().tag("게시물").description("게시물 업데이트")
+                                        .requestSchema(Schema.schema("PostUpdateRequest")),
+                                pathParameters(parameterWithName("postId").description("게시물 식별자")),
+                                requestFields(
+                                        fieldWithPath("series").type(JsonFieldType.STRING).description("시리즈"),
+                                        fieldWithPath("title").type(JsonFieldType.STRING).description("제목"),
+                                        fieldWithPath("content").type(JsonFieldType.STRING).description("내용"),
+                                        fieldWithPath("hashtags").type(JsonFieldType.ARRAY).description("해시태그"),
+                                        fieldWithPath("summary").type(JsonFieldType.STRING).description("요약"),
+                                        fieldWithPath("isPublic").type(JsonFieldType.BOOLEAN).description("공개 여부"),
+                                        fieldWithPath("thumbnailImage").type(JsonFieldType.STRING).description("썸네일 URL"),
+                                        fieldWithPath("path").type(JsonFieldType.STRING).description("게시물 경로"))
+                        )
+                );
     }
 
     private PostUpdateRequest getPostUpdateRequest() {
