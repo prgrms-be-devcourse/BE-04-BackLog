@@ -70,10 +70,10 @@ tasks.named('test') {
 tasks.withType(GenerateSwaggerUI) {
 	dependsOn 'openapi3'
 
-	delete file('src/main/resources/static/docs/')
+	delete file('src/main/resources/static/')
 	copy {
-		from "build/resources/main/static/docs"
-		into "src/main/resources/static/docs/"
+		from "build/resources/main/static"
+		into "src/main/resources/static/"
 	}
 }
 
