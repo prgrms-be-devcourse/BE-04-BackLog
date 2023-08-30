@@ -53,10 +53,10 @@ class PostHashtagRepositoryTest {
         List<PostHashtag> findPostHashtag = postHashtagRepository.findByPost(게시물1);
         assertThat(findPostHashtag).isEmpty();
     }
-    
+
     @DisplayName("게시물로 게시물에 등록된 해쉬태그를 검색할 수 있다.")
     @Test
-    void findByPostTest(){
+    void findByPostTest() {
         List<PostHashtag> postHashtags = createPostHashtags(게시물1, 해쉬태그_모음);
         postHashtagRepository.saveAll(postHashtags);
 
@@ -64,7 +64,7 @@ class PostHashtagRepositoryTest {
 
         포스트_해쉬태그.forEach(a -> System.out.println(a.getHashtag()));
         assertThat(포스트_해쉬태그).hasSize(해쉬태그_모음.size());
-     }
+    }
 
     @DisplayName("해쉬태그를 통해 사용되고 있는 게시물이 없다면 True를 반환한다.")
     @Test
