@@ -16,9 +16,9 @@ import dev.backlog.domain.post.dto.PostUpdateRequest;
 import dev.backlog.domain.post.infrastructure.persistence.PostHashtagRepository;
 import dev.backlog.domain.post.infrastructure.persistence.PostRepository;
 import dev.backlog.domain.post.model.Post;
+import dev.backlog.domain.post.model.PostHashtag;
 import dev.backlog.domain.series.infrastructure.persistence.SeriesRepository;
 import dev.backlog.domain.series.model.Series;
-import dev.backlog.domain.post.model.PostHashtag;
 import dev.backlog.domain.user.infrastructure.persistence.UserRepository;
 import dev.backlog.domain.user.model.User;
 import org.junit.jupiter.api.AfterEach;
@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Set;
 
 import static dev.backlog.common.fixture.TestFixture.게시물1;
+import static dev.backlog.common.fixture.TestFixture.게시물_모음;
 import static dev.backlog.common.fixture.TestFixture.유저1;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -70,11 +71,13 @@ class PostServiceTest extends TestContainerConfig {
 
     private User 유저1;
     private Post 게시물1;
+    private List<Post> 게시물_목록;
 
     @BeforeEach
     void setUp() {
-        유저1 = userRepository.save(유저1());
-        게시물1 = postRepository.save(게시물1(유저1));
+        유저1 = 유저1();
+        게시물1 = 게시물1(유저1);
+        게시물_목록 = 게시물_모음(유저1);
     }
 
     @AfterEach
@@ -216,9 +219,30 @@ class PostServiceTest extends TestContainerConfig {
         assertThat(postSliceResponse.numberOfElements()).isEqualTo(expectedCount);
     }
 
+    @DisplayName("최신 순서로 등록된 게시물 목록을 조회할 수 있다.")
+    @Test
+    void findPostsInLatestOrder() {
+        //given
+        userRepository.save(유저1);
+        postRepository.saveAll(게시물_목록);
+        PageRequest pageRequest = PageRequest.of(1, 20, Sort.Direction.DESC, "createdAt");
+
+        //when
+        PostSliceResponse<PostSummaryResponse> postSliceResponse = postService.findPostsInLatestOrder(pageRequest);
+
+        //then
+        assertAll(
+                () -> assertThat(postSliceResponse.data()).isSortedAccordingTo(Comparator.comparing(PostSummaryResponse::createdAt).reversed()),
+                () -> assertThat(postSliceResponse.hasNext()).isFalse(),
+                () -> assertThat(postSliceResponse.numberOfElements()).isEqualTo(postSliceResponse.data().size())
+        );
+    }
+
     @DisplayName("게시물 업데이트의 대한 정보를 받아서 게시물을 업데이트한다.")
     @Test
     void updatePostTest() {
+        userRepository.save(유저1);
+        postRepository.save(게시물1);
         PostUpdateRequest request = getPostUpdateRequest();
         postService.updatePost(request, 게시물1.getId(), 유저1.getId());
 
