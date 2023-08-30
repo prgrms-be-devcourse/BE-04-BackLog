@@ -90,6 +90,12 @@ public class Post extends BaseEntity {
         this.viewCount = viewCount;
     }
 
+    public void verifyPostOwner(User user) {
+        if (!this.user.equals(user)) {
+            throw new IllegalArgumentException("접근 권한이 없습니다.");
+        }
+    }
+
     public void updateTitle(String title) {
         this.title = title;
     }
