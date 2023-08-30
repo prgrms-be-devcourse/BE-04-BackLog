@@ -16,11 +16,12 @@ import dev.backlog.domain.post.dto.PostUpdateRequest;
 import dev.backlog.domain.post.infrastructure.persistence.PostHashtagRepository;
 import dev.backlog.domain.post.infrastructure.persistence.PostRepository;
 import dev.backlog.domain.post.model.Post;
+import dev.backlog.domain.post.model.PostHashtag;
 import dev.backlog.domain.series.infrastructure.persistence.SeriesRepository;
 import dev.backlog.domain.series.model.Series;
-import dev.backlog.domain.post.model.PostHashtag;
 import dev.backlog.domain.user.infrastructure.persistence.UserRepository;
 import dev.backlog.domain.user.model.User;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -234,6 +235,26 @@ class PostServiceTest extends TestContainerConfig {
                 () -> assertThat(변경된_게시물.getPath()).isEqualTo("변경된 경로"),
                 () -> assertThat(postHashtags.size()).isOne()
         );
+    }
+
+    @DisplayName("게시물 작성자는 게시물을 삭제할 수 있다.")
+    @Test
+    void deletePostTest() {
+        Long postId = 게시물1.getId();
+
+        postService.deletePost(postId, 유저1.getId());
+        boolean result = postRepository.findById(postId).isPresent();
+
+        assertThat(result).isFalse();
+    }
+
+    @DisplayName("게시물 작성자가 아니면 게시물을 삭제할 수 없다.")
+    @Test
+    void deletePostFailTest() {
+        Long postId = 게시물1.getId();
+
+        Assertions.assertThatThrownBy(() -> postService.deletePost(postId, 유저1.getId() + 1))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     private PostUpdateRequest getPostUpdateRequest() {
