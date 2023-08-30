@@ -1,7 +1,10 @@
 package dev.backlog.common.fixture;
 
+import dev.backlog.domain.comment.model.Comment;
 import dev.backlog.domain.hashtag.model.Hashtag;
+import dev.backlog.domain.like.model.Like;
 import dev.backlog.domain.post.model.Post;
+import dev.backlog.domain.series.model.Series;
 import dev.backlog.domain.user.model.Email;
 import dev.backlog.domain.user.model.User;
 
@@ -25,9 +28,9 @@ public class TestFixture {
                 .build();
     }
 
-    public static Post 게시물1(User user) {
+    public static Post 게시물1(User user, Series series) {
         return Post.builder()
-                .series(null)
+                .series(series)
                 .user(user)
                 .title("제목")
                 .content("내용")
@@ -38,13 +41,45 @@ public class TestFixture {
                 .build();
     }
 
-    public static List<Post> 게시물_모음(User user) {
+    public static List<Post> 게시물_모음(User user, Series series) {
         List<Post> posts = new ArrayList<>();
         for (int index = 0; index < 30; index++) {
-            Post post = 게시물1(user);
+            Post post = 게시물1(user, series);
             posts.add(post);
         }
         return posts;
+    }
+
+    public static Comment 댓글1(User user, Post post) {
+        return Comment.builder()
+                .writer(user)
+                .post(post)
+                .content("내용")
+                .isDeleted(false)
+                .build();
+    }
+
+    public static List<Comment> 댓글_모음(User user, Post post) {
+        List<Comment> comments = new ArrayList<>();
+        for (int index = 0; index < 5; index++) {
+            Comment comment = 댓글1(user, post);
+            comments.add(comment);
+        }
+        return comments;
+    }
+
+    public static Series 시리즈1(User user) {
+        return Series.builder()
+                .user(user)
+                .name("시리즈")
+                .build();
+    }
+
+    public static Like 좋아요1(User user, Post post) {
+        return Like.builder()
+                .post(post)
+                .user(user)
+                .build();
     }
 
     public static List<Hashtag> 해쉬태그_모음() {
