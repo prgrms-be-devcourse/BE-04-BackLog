@@ -107,6 +107,17 @@ public class PostService {
         }
     }
 
+    @Transactional
+    public void deletePost(Long postId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("게시물을 찾을 수 없습니다."));
+
+        post.verifyPostOwner(user);
+        postRepository.delete(post);
+    }
+
     private void updatePostByRequest(Post post, PostUpdateRequest request) {
         post.updateTitle(request.title());
         post.updateContent(request.content());
