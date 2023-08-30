@@ -19,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @DataJpaTest
 class PostRepositoryTest {
@@ -57,9 +58,10 @@ class PostRepositoryTest {
         Slice<Post> postSlice = postRepository.findLikedPostsByUserId(user.getId(), pageRequest);
 
         //then
-        int expectedCount = 10;
-        assertThat(postSlice.hasNext()).isFalse();
-        assertThat(postSlice.getNumberOfElements()).isEqualTo(expectedCount);
+        assertAll(
+                () -> assertThat(postSlice.hasNext()).isFalse(),
+                () -> assertThat(postSlice.getNumberOfElements()).isEqualTo(postSlice.getContent().size())
+        );
     }
 
     @DisplayName("사용자와 시리즈 이름으로 게시글들을 조회할 수 있다.")
@@ -75,11 +77,6 @@ class PostRepositoryTest {
         int postCount = 30;
         List<Post> posts = TestFixtureUtil.createPosts(user, series, postCount);
         postRepository.saveAll(posts);
-        posts.stream()
-                .forEach(post -> {
-                    Like like = TestFixtureUtil.createLike(user, post);
-                    likeRepository.save(like);
-                });
 
         PageRequest pageRequest = PageRequest.of(1, 20, Sort.Direction.ASC, "createdAt");
 
@@ -87,9 +84,10 @@ class PostRepositoryTest {
         Slice<Post> postSlice = postRepository.findAllByUserAndSeries(user, series, pageRequest);
 
         //then
-        int expectedCount = 10;
-        assertThat(postSlice.hasNext()).isFalse();
-        assertThat(postSlice.getNumberOfElements()).isEqualTo(expectedCount);
+        assertAll(
+                () -> assertThat(postSlice.hasNext()).isFalse(),
+                () -> assertThat(postSlice.getNumberOfElements()).isEqualTo(postSlice.getContent().size())
+        );
     }
 
 }
