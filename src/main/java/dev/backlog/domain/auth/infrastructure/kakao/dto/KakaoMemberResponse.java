@@ -14,7 +14,7 @@ public record KakaoMemberResponse(
     public OAuthInfoResponse toOAuthInfoResponse() {
         return OAuthInfoResponse.builder()
                 .oAuthProvider(OAuthProvider.KAKAO)
-                .oAuthProviderId(id)
+                .oAuthProviderId(String.valueOf(id))
                 .nickname(kakaoAccount.profile.nickname)
                 .email(new Email(kakaoAccount.email))
                 .profileImage(kakaoAccount.profile.profileImageUrl)
