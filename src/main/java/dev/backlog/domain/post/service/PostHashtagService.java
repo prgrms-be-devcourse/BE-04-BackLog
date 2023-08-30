@@ -27,6 +27,21 @@ public class PostHashtagService {
         postHashtagRepository.saveAll(postHashtags);
     }
 
+    public void deleteAllByPost(Post post) {
+        List<PostHashtag> postHashtags = postHashtagRepository.findByPost(post);
+
+        List<Hashtag> hashtags = postHashtags.stream()
+                .map(PostHashtag::getHashtag)
+                .toList();
+
+        postHashtagRepository.deleteAllByPost(post);
+        for (Hashtag hashtag : hashtags) {
+            if (!postHashtagRepository.existsByHashtag(hashtag)) {
+                hashtagRepository.delete(hashtag);
+            }
+        }
+    }
+
     private List<Hashtag> findHashtags(Set<String> hashtags) {
         return hashtags.stream()
                 .map(this::findOrCreate)

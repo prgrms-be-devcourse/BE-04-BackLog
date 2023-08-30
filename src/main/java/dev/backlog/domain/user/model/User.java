@@ -57,7 +57,8 @@ public class User {
     private User(
             OAuthProvider oauthProvider,
             String oauthProviderId,
-            String nickname, Email email,
+            String nickname,
+            Email email,
             String profileImage,
             String introduction,
             String blogTitle
@@ -70,14 +71,6 @@ public class User {
         this.introduction = introduction;
         this.blogTitle = blogTitle;
         this.deletedDate = LocalDate.MAX;
-    }
-
-    public User(String nickname, Email email, String profileImage, String blogTitle, OAuthProvider oauthProvider) {
-        this.nickname = nickname;
-        this.email = email;
-        this.profileImage = profileImage;
-        this.blogTitle = blogTitle;
-        this.oauthProvider = oauthProvider;
     }
 
 }

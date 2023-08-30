@@ -5,18 +5,23 @@ import dev.backlog.common.config.TestContainerConfig;
 import dev.backlog.common.util.TestFixtureUtil;
 import dev.backlog.domain.comment.infrastructure.persistence.CommentRepository;
 import dev.backlog.domain.comment.model.Comment;
+import dev.backlog.domain.hashtag.infrastructure.persistence.HashtagRepository;
 import dev.backlog.domain.like.infrastructure.persistence.LikeRepository;
 import dev.backlog.domain.like.model.Like;
 import dev.backlog.domain.post.dto.PostCreateRequest;
 import dev.backlog.domain.post.dto.PostResponse;
 import dev.backlog.domain.post.dto.PostSliceResponse;
 import dev.backlog.domain.post.dto.PostSummaryResponse;
+import dev.backlog.domain.post.dto.PostUpdateRequest;
+import dev.backlog.domain.post.infrastructure.persistence.PostHashtagRepository;
 import dev.backlog.domain.post.infrastructure.persistence.PostRepository;
 import dev.backlog.domain.post.model.Post;
 import dev.backlog.domain.series.infrastructure.persistence.SeriesRepository;
 import dev.backlog.domain.series.model.Series;
+import dev.backlog.domain.post.model.PostHashtag;
 import dev.backlog.domain.user.infrastructure.persistence.UserRepository;
 import dev.backlog.domain.user.model.User;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,8 +33,12 @@ import org.springframework.data.domain.Sort;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
+import static dev.backlog.common.fixture.TestFixture.게시물1;
+import static dev.backlog.common.fixture.TestFixture.유저1;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @Import(value = {JpaConfig.class})
 @SpringBootTest
@@ -53,10 +62,27 @@ class PostServiceTest extends TestContainerConfig {
     @Autowired
     private SeriesRepository seriesRepository;
 
+    @Autowired
+    private PostHashtagRepository postHashtagRepository;
+
+    @Autowired
+    private HashtagRepository hashtagRepository;
+
+    private User 유저1;
+    private Post 게시물1;
+
     @BeforeEach
     void setUp() {
+        유저1 = userRepository.save(유저1());
+        게시물1 = postRepository.save(게시물1(유저1));
+    }
+
+    @AfterEach
+    void tearDown() {
         likeRepository.deleteAll();
         commentRepository.deleteAll();
+        postHashtagRepository.deleteAll();
+        hashtagRepository.deleteAll();
         postRepository.deleteAll();
         seriesRepository.deleteAll();
         userRepository.deleteAll();
@@ -188,6 +214,39 @@ class PostServiceTest extends TestContainerConfig {
         assertThat(postSliceResponse.data()).isSortedAccordingTo(Comparator.comparing(PostSummaryResponse::createdAt));
         assertThat(postSliceResponse.hasNext()).isFalse();
         assertThat(postSliceResponse.numberOfElements()).isEqualTo(expectedCount);
+    }
+
+    @DisplayName("게시물 업데이트의 대한 정보를 받아서 게시물을 업데이트한다.")
+    @Test
+    void updatePostTest() {
+        PostUpdateRequest request = getPostUpdateRequest();
+        postService.updatePost(request, 게시물1.getId(), 유저1.getId());
+
+        Post 변경된_게시물 = postRepository.findById(게시물1.getId()).get();
+        List<PostHashtag> postHashtags = postHashtagRepository.findByPost(변경된_게시물);
+
+        assertAll(
+                () -> assertThat(변경된_게시물.getTitle()).isEqualTo("변경된 제목"),
+                () -> assertThat(변경된_게시물.getContent()).isEqualTo("변경된 내용"),
+                () -> assertThat(변경된_게시물.getSummary()).isEqualTo("변경된 요약"),
+                () -> assertThat(변경된_게시물.getThumbnailImage()).isEqualTo("변경된 URL"),
+                () -> assertThat(변경된_게시물.getIsPublic()).isFalse(),
+                () -> assertThat(변경된_게시물.getPath()).isEqualTo("변경된 경로"),
+                () -> assertThat(postHashtags.size()).isOne()
+        );
+    }
+
+    private PostUpdateRequest getPostUpdateRequest() {
+        return new PostUpdateRequest(
+                null,
+                "변경된 제목",
+                "변경된 내용",
+                Set.of("변경된 해쉬태그"),
+                "변경된 요약",
+                false,
+                "변경된 URL",
+                "변경된 경로"
+        );
     }
 
 }
