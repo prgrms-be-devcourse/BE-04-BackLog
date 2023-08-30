@@ -135,7 +135,7 @@ class PostControllerTest extends ControllerTestConfig {
         int postCount = 10;
         List<Post> posts = TestFixtureUtil.createPosts(user, null, postCount);
 
-        int page = 1;
+        int page = 0;
         int size = 20;
         PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
 
@@ -202,7 +202,7 @@ class PostControllerTest extends ControllerTestConfig {
         int postCount = 10;
         List<Post> posts = TestFixtureUtil.createPosts(user, series, postCount);
 
-        int page = 1;
+        int page = 0;
         int size = 20;
         PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.ASC, "createdAt");
 
