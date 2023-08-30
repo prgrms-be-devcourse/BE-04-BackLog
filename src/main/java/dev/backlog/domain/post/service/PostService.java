@@ -15,6 +15,7 @@ import dev.backlog.domain.series.model.Series;
 import dev.backlog.domain.user.infrastructure.persistence.UserRepository;
 import dev.backlog.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -87,6 +88,12 @@ public class PostService {
                 .orElse(null);
 
         Slice<PostSummaryResponse> postSummaryResponses = postRepository.findAllByUserAndSeries(user, series, pageable)
+                .map(this::getPostSummaryResponse);
+        return PostSliceResponse.from(postSummaryResponses);
+    }
+
+    public PostSliceResponse<PostSummaryResponse> findPostsInLatestOrder(Pageable pageable) {
+        Page<PostSummaryResponse> postSummaryResponses = postRepository.findAll(pageable)
                 .map(this::getPostSummaryResponse);
         return PostSliceResponse.from(postSummaryResponses);
     }
