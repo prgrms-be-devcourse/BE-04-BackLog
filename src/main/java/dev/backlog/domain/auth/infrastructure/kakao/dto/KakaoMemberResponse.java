@@ -22,14 +22,14 @@ public record KakaoMemberResponse(
     }
 
     @JsonNaming(SnakeCaseStrategy.class)
-    public record KakaoAccount(
+    private record KakaoAccount(
             Profile profile,
             String email
     ) {
     }
 
     @JsonNaming(SnakeCaseStrategy.class)
-    public record Profile(
+    private record Profile(
             String nickname,
             String profileImageUrl
     ) {
