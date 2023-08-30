@@ -40,7 +40,7 @@ class OAuthServiceTest {
     @Mock
     private AuthTokensGenerator authTokensGenerator;
 
-    @DisplayName("로그인 타입을 입력하면 로그인 타입에 맞는 리다이렉트 할 url을 생성한다.")
+    @DisplayName("로그인 타입에 맞는 리다이렉트 할 url을 생성한다.")
     @Test
     void getAuthCodeReqeustUrlTest() {
         String expectedUrl = "https://example.com";
@@ -51,7 +51,7 @@ class OAuthServiceTest {
         Assertions.assertThat(expectedUrl).isEqualTo(result);
     }
 
-    @DisplayName("로그인 타입과 authCode를 받아 로그인에 성공하면 토큰을 생성해 반환한다.")
+    @DisplayName("로그인에 성공하면 토큰을 생성해 반환한다.")
     @Test
     void loginTest() {
         String authCode = "authCode";

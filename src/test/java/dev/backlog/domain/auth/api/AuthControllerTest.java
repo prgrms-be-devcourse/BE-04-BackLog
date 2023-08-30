@@ -49,7 +49,7 @@ class AuthControllerTest {
     @MockBean
     private OAuthService oAuthService;
 
-    @DisplayName("사용자가 로그인 버튼을 누르면 해당 서비스의 접근 권한 url로 리다이렉트한다.")
+    @DisplayName("사용자가 로그인 버튼을 누르면 해당하는 서비스의 접근 권한 url로 리다이렉트한다.")
     @Test
     void redirectAuthCodeRequestUrlTest() throws Exception {
         String expectedRedirectUrl = "https://example.com";
@@ -77,6 +77,7 @@ class AuthControllerTest {
                 .andExpect(redirectedUrl(expectedRedirectUrl));
     }
 
+    @DisplayName("올바른 로그인 타입과 인증 코드를 받아 로그인에 성공한다.")
     @Test
     void loginTest() throws Exception {
         String code = "authCode";
