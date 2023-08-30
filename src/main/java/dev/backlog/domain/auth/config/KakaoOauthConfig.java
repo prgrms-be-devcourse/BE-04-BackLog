@@ -14,7 +14,9 @@ public class KakaoOauthConfig {
     public static final String REQUEST_TOKEN_URL = "/oauth/token";
     public static final String REQUEST_INFO_URL = "/v2/user/me";
 
-    private KakaoUrlProperties url;
+    private String authUrl;
+    private String apiUrl;
+    private String redirectUrl;
 
     @Value("${oauth.kakao.client-id}")
     private String clientId;

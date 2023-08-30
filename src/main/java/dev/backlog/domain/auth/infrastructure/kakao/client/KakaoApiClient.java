@@ -27,7 +27,7 @@ public class KakaoApiClient {
     private final KakaoOauthConfig kakaoOauthConfig;
 
     public KakaoTokens fetchToken(String authCode) {
-        String url = kakaoOauthConfig.getUrl().getAuthUrl() + REQUEST_TOKEN_URL;
+        String url = kakaoOauthConfig.getAuthUrl() + REQUEST_TOKEN_URL;
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -35,7 +35,7 @@ public class KakaoApiClient {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", GRANT_TYPE);
         body.add("client_id", kakaoOauthConfig.getClientId());
-        body.add("redirect_uri", kakaoOauthConfig.getUrl().getRedirectUrl());
+        body.add("redirect_uri", kakaoOauthConfig.getRedirectUrl());
         body.add("code", authCode);
 
         HttpEntity<?> request = new HttpEntity<>(body, httpHeaders);
@@ -47,7 +47,7 @@ public class KakaoApiClient {
     }
 
     public KakaoMemberResponse fetchMember(String accessToken) {
-        String url = kakaoOauthConfig.getUrl().getApiUrl() + REQUEST_INFO_URL;
+        String url = kakaoOauthConfig.getApiUrl() + REQUEST_INFO_URL;
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
