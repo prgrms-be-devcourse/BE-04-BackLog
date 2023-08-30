@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		restdocsApiSpecVersion = '0.18.2' // restdocsApiSpecVersion 버전 변수 설정
+		restdocsApiSpecVersion = '0.18.3' // restdocsApiSpecVersion 버전 변수 설정
 	}
 }
 
@@ -56,25 +56,19 @@ dependencies {
 
 	/* Test */
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
-	testImplementation "com.epages:restdocs-api-spec-mockmvc:${restdocsApiSpecVersion}"
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
+
+	/* TestContainer */
 	testImplementation "org.testcontainers:testcontainers:1.17.2"
 	testImplementation "org.testcontainers:junit-jupiter:1.17.2"
+
+	/* Docs & UI */
+	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+	testImplementation "com.epages:restdocs-api-spec-mockmvc:${restdocsApiSpecVersion}"
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
-}
-
-tasks.withType(GenerateSwaggerUI) {
-	dependsOn 'openapi3'
-
-	delete file('src/main/resources/static/docs/')
-	copy {
-		from "build/resources/main/static/docs"
-		into "src/main/resources/static/docs/"
-	}
 }
 
 openapi3 {
@@ -88,8 +82,19 @@ openapi3 {
 	outputDirectory = 'build/resources/main/static'
 }
 
-bootJar {
+task copyDocs {
 	dependsOn(':openapi3')
+	doLast {
+		delete 'src/main/resources/static/backlog.json'
+		copy {
+			from "build/resources/main/static/backlog.json"
+			into "src/main/resources/static/"
+		}
+	}
+}
+
+bootJar {
+	dependsOn(':copyDocs')
 }
 
 jar {
