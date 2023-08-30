@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
+import static org.springframework.http.HttpStatus.FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
@@ -24,7 +25,7 @@ public class AuthController {
     private final OAuthService oAuthService;
 
     @GetMapping("/{oAuthProvider}")
-    @ResponseStatus(OK)
+    @ResponseStatus(FOUND)
     public void redirectAuthCodeRequestUrl(@PathVariable OAuthProvider oAuthProvider, HttpServletResponse response) throws IOException {
         String redirectUrl = oAuthService.getAuthCodeRequestUrl(oAuthProvider);
         response.sendRedirect(redirectUrl);
