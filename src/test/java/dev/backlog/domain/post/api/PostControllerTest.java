@@ -31,14 +31,13 @@ import java.util.Set;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.resourceDetails;
-import static com.epages.restdocs.apispec.ResourceDocumentation.headerWithName;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
-import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -211,7 +210,6 @@ class PostControllerTest extends ControllerTestConfig {
 
         mockMvc.perform(put("/api/posts/{postId}", postId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("AuthrizationCode", "asdasd")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNoContent())
                 .andDo(document("post-update",
@@ -229,6 +227,22 @@ class PostControllerTest extends ControllerTestConfig {
                                         fieldWithPath("path").type(JsonFieldType.STRING).description("게시물 경로"))
                         )
                 );
+    }
+
+    @DisplayName("게시물의 식별자를 입력받아 삭제후 204상태코드를 반환한다.")
+    @Test
+    void deletePostTest() throws Exception {
+        Long postId = 1L;
+        Long userId = 1L;
+
+        doNothing().when(postService).deletePost(postId, userId);
+
+        mockMvc.perform(delete("/api/posts/{postId}", postId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(document("post-delete",
+                        resourceDetails().tag("게시물").description("게시물 삭제"),
+                        pathParameters(parameterWithName("postId").description("게시물 식별자")))
+                ).andExpect(status().isNoContent());
     }
 
     private PostUpdateRequest getPostUpdateRequest() {
