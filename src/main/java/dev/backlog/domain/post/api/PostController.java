@@ -62,7 +62,8 @@ public class PostController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public PostSliceResponse<PostSummaryResponse> findSeriesPosts(String series, Long userId, @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
+    public PostSliceResponse<PostSummaryResponse> findSeriesPosts(String series, Long userId,
+                                                                  @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
         return postService.findPostsByUserAndSeries(userId, series, pageable);
     }
 
