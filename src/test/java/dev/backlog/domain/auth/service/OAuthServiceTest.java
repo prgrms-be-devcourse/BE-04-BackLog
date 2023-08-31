@@ -7,13 +7,16 @@ import dev.backlog.domain.auth.model.oauth.OAuthProvider;
 import dev.backlog.domain.auth.model.oauth.authcode.AuthCodeRequestUrlProviderComposite;
 import dev.backlog.domain.auth.model.oauth.client.OAuthMemberClientComposite;
 import dev.backlog.domain.auth.model.oauth.dto.OAuthInfoResponse;
+import dev.backlog.domain.auth.model.oauth.dto.SignupRequest;
 import dev.backlog.domain.user.infrastructure.persistence.UserRepository;
+import dev.backlog.domain.user.model.Email;
 import dev.backlog.domain.user.model.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
@@ -22,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class OAuthServiceTest {
 
     @InjectMocks
@@ -48,6 +51,53 @@ class OAuthServiceTest {
 
         String result = oAuthService.getAuthCodeRequestUrl(OAuthProvider.KAKAO);
         assertThat(expectedUrl).isEqualTo(result);
+    }
+
+    @DisplayName("회원가입에 성공하면 토큰을 생성해 반환한다.")
+    @Test
+    void signupTest() {
+        String authCode = "authCode";
+        String accessToken = "accessToken";
+        String refreshToken = "refreshToken";
+        String grantType = "Bearer ";
+        Long expiresIn = 1000L;
+
+        SignupRequest signupRequest = SignupRequest.builder()
+                .blogTitle("블로그 제목")
+                .introduction("소개")
+                .authCode(authCode)
+                .oAuthProvider(OAuthProvider.KAKAO)
+                .build();
+
+        OAuthInfoResponse response = OAuthInfoResponse.builder()
+                .nickname("닉네임")
+                .profileImage("프로필 사진")
+                .email(new Email("test123@gmail.com"))
+                .oAuthProvider(OAuthProvider.KAKAO)
+                .oAuthProviderId("1a2b3c")
+                .build();
+
+        User newUser = TestFixture.유저1();
+
+        AuthTokens authToken = AuthTokens.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .grantType(grantType)
+                .expiresIn(expiresIn)
+                .build();
+
+        when(oAuthMemberClientComposite.fetch(signupRequest.oAuthProvider(), signupRequest.authCode())).thenReturn(response);
+        when(userRepository.save(any())).thenReturn(newUser);
+        when(authTokensGenerator.generate(newUser.getId())).thenReturn(authToken);
+
+        AuthTokens authTokens = oAuthService.signup(signupRequest);
+
+        assertAll(
+                () -> assertThat(authTokens.accessToken()).isEqualTo(accessToken),
+                () -> assertThat(authTokens.refreshToken()).isEqualTo(refreshToken),
+                () -> assertThat(authTokens.grantType()).isEqualTo(grantType),
+                () -> assertThat(authTokens.expiresIn()).isEqualTo(expiresIn)
+        );
     }
 
     @DisplayName("로그인에 성공하면 토큰을 생성해 반환한다.")

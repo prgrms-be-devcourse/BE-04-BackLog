@@ -1,8 +1,10 @@
 package dev.backlog.domain.auth.api;
 
 import com.epages.restdocs.apispec.Schema;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.backlog.domain.auth.AuthTokens;
 import dev.backlog.domain.auth.model.oauth.OAuthProvider;
+import dev.backlog.domain.auth.model.oauth.dto.SignupRequest;
 import dev.backlog.domain.auth.service.OAuthService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -29,6 +32,7 @@ import static org.springframework.restdocs.operation.preprocess.Preprocessors.pr
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
@@ -45,6 +49,9 @@ class AuthControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockBean
     private OAuthService oAuthService;
@@ -74,6 +81,64 @@ class AuthControllerTest {
                 )
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl(expectedRedirectUrl));
+    }
+
+    @DisplayName("올바른 로그인 타입과 인증 코드, 추가 정보를 받아 회원가입에 성공한다.")
+    @Test
+    void signupTest() throws Exception {
+        String authCode = "authCode";
+        String accessToken = "accessToken";
+        String refreshToken = "refreshToken";
+        String grantType = "Bearer ";
+        Long expiresIn = 1000L;
+
+        SignupRequest signupRequest = SignupRequest.builder()
+                .blogTitle("블로그 제목")
+                .introduction("소개")
+                .authCode(authCode)
+                .oAuthProvider(OAuthProvider.KAKAO)
+                .build();
+
+        AuthTokens expectedTokens = AuthTokens.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .grantType(grantType)
+                .expiresIn(expiresIn)
+                .build();
+
+        when(oAuthService.signup(signupRequest)).thenReturn(expectedTokens);
+
+        mockMvc.perform(RestDocumentationRequestBuilders.post("/api/auth/v2/signup")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(signupRequest))
+                )
+                .andDo(document("auth-signup",
+                                resourceDetails().tags("Auth").description("회원가입")
+                                        .requestSchema(Schema.schema("SignupRequest"))
+                                        .responseSchema(Schema.schema("AuthTokens")),
+                                preprocessRequest(prettyPrint()),
+                                preprocessResponse(prettyPrint()),
+                                requestFields(
+                                        fieldWithPath("blogTitle").type(JsonFieldType.STRING).description("블로그 제목"),
+                                        fieldWithPath("introduction").type(JsonFieldType.STRING).description("소개"),
+                                        fieldWithPath("oAuthProvider").type(JsonFieldType.STRING).description("로그인 타입"),
+                                        fieldWithPath("authCode").type(JsonFieldType.STRING).description("인증 코드")
+                                ),
+                                responseFields(
+                                        fieldWithPath("accessToken").type(JsonFieldType.STRING).description("액세스 토큰"),
+                                        fieldWithPath("refreshToken").type(JsonFieldType.STRING).description("리프레시 토큰"),
+                                        fieldWithPath("grantType").type(JsonFieldType.STRING).description("Bearer 타입"),
+                                        fieldWithPath("expiresIn").type(JsonFieldType.NUMBER).description("토큰 만료 시간(초)")
+                                )
+                        )
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value(accessToken))
+                .andExpect(jsonPath("$.refreshToken").value(refreshToken))
+                .andExpect(jsonPath("$.grantType").value(grantType))
+                .andExpect(jsonPath("$.expiresIn").value(expiresIn)
+                );
     }
 
     @DisplayName("올바른 로그인 타입과 인증 코드를 받아 로그인에 성공한다.")
