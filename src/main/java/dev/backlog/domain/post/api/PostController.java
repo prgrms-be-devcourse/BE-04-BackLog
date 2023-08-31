@@ -58,6 +58,12 @@ public class PostController {
         return ResponseEntity.ok(seriesPosts);
     }
 
+    @GetMapping("/recent")
+    public ResponseEntity<PostSliceResponse<PostSummaryResponse>> findRecentPosts(@PageableDefault(size = 20, sort = "createdAt", direction = DESC) Pageable pageable) {
+        PostSliceResponse<PostSummaryResponse> recentPosts = postService.findPostsInLatestOrder(pageable);
+        return ResponseEntity.ok(recentPosts);
+    }
+
     @PutMapping("/{postId}")
     public ResponseEntity<Void> updatePost(@PathVariable Long postId,
                                            @RequestBody PostUpdateRequest request,
