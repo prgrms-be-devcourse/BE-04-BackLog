@@ -1,14 +1,17 @@
 package dev.backlog.domain.auth.api;
 
 import dev.backlog.domain.auth.AuthTokens;
-import dev.backlog.domain.auth.model.oauth.OAuthProvider;
+import dev.backlog.domain.auth.model.oauth.dto.SignupRequest;
 import dev.backlog.domain.auth.service.OAuthService;
+import dev.backlog.domain.auth.model.oauth.OAuthProvider;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +31,11 @@ public class AuthController {
         response.sendRedirect(redirectUrl);
 
         return new ResponseEntity<>(HttpStatus.FOUND);
+    }
+
+    @PostMapping("/signup")
+    public ResponseEntity<AuthTokens> signup(@RequestBody SignupRequest request) {
+        return ResponseEntity.ok(oAuthService.signup(request));
     }
 
     @GetMapping("/login/{oAuthProvider}")

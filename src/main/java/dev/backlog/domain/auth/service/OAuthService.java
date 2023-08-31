@@ -6,6 +6,7 @@ import dev.backlog.domain.auth.model.oauth.OAuthProvider;
 import dev.backlog.domain.auth.model.oauth.authcode.AuthCodeRequestUrlProviderComposite;
 import dev.backlog.domain.auth.model.oauth.client.OAuthMemberClientComposite;
 import dev.backlog.domain.auth.model.oauth.dto.OAuthInfoResponse;
+import dev.backlog.domain.auth.model.oauth.dto.SignupRequest;
 import dev.backlog.domain.user.infrastructure.persistence.UserRepository;
 import dev.backlog.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,22 @@ public class OAuthService {
 
     public String getAuthCodeRequestUrl(OAuthProvider oAuthProvider) {
         return authCodeRequestUrlProviderComposite.provide(oAuthProvider);
+    }
+
+    public AuthTokens signup(SignupRequest request) {
+        OAuthInfoResponse response = oauthMemberClientComposite.fetch(request.oAuthProvider(), request.authCode());
+        User user = User.builder()
+                .oauthProvider(response.oAuthProvider())
+                .oauthProviderId(response.oAuthProviderId())
+                .nickname(response.nickname())
+                .email(response.email())
+                .profileImage(response.profileImage())
+                .introduction(request.introduction())
+                .blogTitle(request.blogTitle())
+                .build();
+        User newUser = userRepository.save(user);
+
+        return authTokensGenerator.generate(newUser.getId());
     }
 
     public AuthTokens login(OAuthProvider oauthProvider, String authCode) {
