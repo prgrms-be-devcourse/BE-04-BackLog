@@ -11,6 +11,8 @@ import dev.backlog.domain.post.dto.PostUpdateRequest;
 import dev.backlog.domain.post.service.PostService;
 import dev.backlog.domain.series.dto.SeriesResponse;
 import dev.backlog.domain.user.dto.Writer;
+import dev.backlog.domain.series.dto.SeriesResponse;
+import dev.backlog.domain.user.dto.Writer;
 import dev.backlog.domain.series.model.Series;
 import dev.backlog.domain.user.model.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,10 +29,6 @@ import java.util.Set;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.resourceDetails;
-import static dev.backlog.common.fixture.TestFixture.게시물1;
-import static dev.backlog.common.fixture.TestFixture.게시물_모음;
-import static dev.backlog.common.fixture.TestFixture.유저1;
-import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
@@ -46,7 +44,6 @@ import static org.springframework.restdocs.request.RequestDocumentation.paramete
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -55,17 +52,6 @@ class PostControllerTest extends ControllerTestConfig {
 
     @MockBean
     private PostService postService;
-
-    private User 유저1;
-    private Post 게시물1;
-    private List<Post> 게시물_모음;
-
-    @BeforeEach
-    void setUp() {
-        유저1 = 유저1();
-        게시물1 = 게시물1(유저1, null);
-        게시물_모음 = 게시물_모음(유저1, null);
-    }
 
     @DisplayName("게시물 생성 요청을 받아 처리 후 201 코드를 반환하고 게시물 조회 URI를 반환한다.")
     @Test
@@ -218,6 +204,30 @@ class PostControllerTest extends ControllerTestConfig {
                                 )
                         )
                 );
+                .andDo(document("posts-find-series",
+                                resourceDetails().tag("게시물").description("시리즈별 게시물 조회")
+                                        .responseSchema(Schema.schema("PostSliceResponse")),
+                                queryParameters(
+                                        parameterWithName("series").description("시리즈 이름"),
+                                        parameterWithName("page").description("현재 페이지"),
+                                        parameterWithName("size").description("페이지 당 게시물 수"),
+                                        parameterWithName("sort").description("정렬 기준")
+                                ),
+                                responseFields(
+                                        fieldWithPath("numberOfElements").type(JsonFieldType.NUMBER).description("게시글 수"),
+                                        fieldWithPath("hasNext").type(JsonFieldType.BOOLEAN).description("마지막 페이지 체크"),
+                                        fieldWithPath("data[]").type(JsonFieldType.ARRAY).description("게시글 데이터"),
+                                        fieldWithPath("data[].postId").type(JsonFieldType.NUMBER).description("게시글 번호"),
+                                        fieldWithPath("data[].thumbnailImage").type(JsonFieldType.STRING).description("시리즈"),
+                                        fieldWithPath("data[].title").type(JsonFieldType.STRING).description("시리즈 번호"),
+                                        fieldWithPath("data[].summary").type(JsonFieldType.STRING).description("시리즈 이름"),
+                                        fieldWithPath("data[].userId").type(JsonFieldType.NUMBER).description("게시글 작성자 번호"),
+                                        fieldWithPath("data[].createdAt").type(JsonFieldType.NULL).description("게시글 작성 시간"),
+                                        fieldWithPath("data[].commentCount").type(JsonFieldType.NUMBER).description("댓글"),
+                                        fieldWithPath("data[].likeCount").type(JsonFieldType.NUMBER).description("댓글 작성자 번호")
+                                )
+                        )
+                );
     }
 
     @DisplayName("게시물 목록을 최신 순서로 조회한다.")
@@ -265,25 +275,19 @@ class PostControllerTest extends ControllerTestConfig {
     @Test
     void findRecentPosts() throws Exception {
         //given
-        final Long postId = 1l;
-        final Long userId = 1l;
-        ReflectionTestUtils.setField(유저1, "id", userId);
-
-        int page = 0;
-        int size = 20;
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
-
-        PostSliceResponse<PostSummaryResponse> postSliceResponse = PostSliceResponse.from(getPostSummaryResponses(postId, pageRequest));
-        when(postService.findPostsInLatestOrder(pageRequest)).thenReturn(postSliceResponse);
+        final long postId = 1l;
+        final long userId = 1l;
+        PostSliceResponse<PostSummaryResponse> postSliceResponse = getPostSliceResponse(postId, userId);
+        when(postService.findPostsInLatestOrder(any(PageRequest.class))).thenReturn(postSliceResponse);
 
         //when, then
-        mockMvc.perform(RestDocumentationRequestBuilders.get("/api/posts/recent")
-                        .param("page", String.valueOf(page))
-                        .param("size", String.valueOf(size))
+        mockMvc.perform(get("/api/posts/recent")
+                        .param("page", String.valueOf(0))
+                        .param("size", String.valueOf(20))
                         .param("sort", "createdAt,desc")
                         .header("AuthorizationCode", "tmp"))
                 .andExpect(status().isOk())
-                .andDo(document("post-find-recent",
+                .andDo(document("posts-find-recent",
                                 resourceDetails().tag("게시물").description("게시물 최근 조회")
                                         .responseSchema(Schema.schema("PostSliceResponse")),
                                 queryParameters(
@@ -311,7 +315,7 @@ class PostControllerTest extends ControllerTestConfig {
     @DisplayName("사용자의 게시물 업데이트 요청을 받아 업데이트 한 뒤 204 상태코드를 반환한다.")
     @Test
     void updatePostTest() throws Exception {
-        Long postId = 1L;
+        final Long postId = 1L;
         PostUpdateRequest request = getPostUpdateRequest();
         doNothing().when(postService).updatePost(any(PostUpdateRequest.class), anyLong(), anyLong());
 
@@ -350,16 +354,45 @@ class PostControllerTest extends ControllerTestConfig {
         );
     }
 
-    private Slice<PostSummaryResponse> getPostSummaryResponses(Long postId, PageRequest pageRequest) {
-        int likeCount = 0;
-        int commentCount = 0;
-        Slice<Post> slice = new SliceImpl<>(게시물_모음, pageRequest, false);
-        Slice<PostSummaryResponse> postSummaryResponses = slice
-                .map(post -> {
-                    ReflectionTestUtils.setField(post, "id", postId);
-                    return PostSummaryResponse.of(post, commentCount, likeCount);
-                });
-        return postSummaryResponses;
+    private PostResponse getPostResponse(
+            long postId,
+            long seriesId,
+            long userId,
+            long commentId) {
+        return new PostResponse(
+                postId,
+                new SeriesResponse(seriesId, "시리즈"),
+                userId,
+                "제목",
+                0l,
+                "내용",
+                "요약",
+                true,
+                "경로",
+                null,
+                List.of(new CommentResponse(
+                        commentId,
+                        new Writer(userId, "닉네임"),
+                        "내용", null)
+                )
+        );
+    }
+
+    private PostSliceResponse<PostSummaryResponse> getPostSliceResponse(long postId, long userId) {
+        return new PostSliceResponse<PostSummaryResponse>(
+                10,
+                false,
+                List.of(new PostSummaryResponse(
+                        postId,
+                        "썸네일 이미지",
+                        "제목",
+                        "요약",
+                        userId,
+                        null,
+                        0,
+                        0)
+                )
+        );
     }
 
     private PostResponse getPostResponse(
