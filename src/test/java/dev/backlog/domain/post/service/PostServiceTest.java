@@ -172,8 +172,8 @@ class PostServiceTest extends TestContainerConfig {
 
         List<Post> posts = postRepository.saveAll(게시물_모음);
         for (Post post : posts) {
-            Like 좋아요1 = 좋아요1(user, post);
-            likeRepository.save(좋아요1);
+            Like like = 좋아요1(user, post);
+            likeRepository.save(like);
         }
         List<Post> posts = postRepository.saveAll(게시물_모음);
         for (Post post : posts) {
