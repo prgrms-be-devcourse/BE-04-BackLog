@@ -23,12 +23,9 @@ jwt:
   refresh-token-expire-time: ${REFRESH_TOKEN_EXPIRE_TIME}
 
 oauth:
-  kakao:
-    client-id: ${KAKAO_CLIENT_ID}
-    url:
-      auth: https://kauth.kakao.com
-      api: https://kapi.kakao.com
-      redirect: http://localhost:8080/oauth/redirected/kakao
+    kakao:
+      client-id: ${KAKAO_CLIENT_ID}
+      redirect-url: ${KAKAO_REDIRECT_URL}
 
 springdoc:
   swagger-ui:
