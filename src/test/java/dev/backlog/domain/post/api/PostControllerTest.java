@@ -13,6 +13,7 @@ import dev.backlog.domain.post.model.Post;
 import dev.backlog.domain.post.service.PostService;
 import dev.backlog.domain.series.model.Series;
 import dev.backlog.domain.user.model.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -22,6 +23,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -31,6 +33,9 @@ import java.util.Set;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.resourceDetails;
+import static dev.backlog.common.fixture.TestFixture.게시물1;
+import static dev.backlog.common.fixture.TestFixture.게시물_모음;
+import static dev.backlog.common.fixture.TestFixture.유저1;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -42,8 +47,10 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -54,6 +61,17 @@ class PostControllerTest extends ControllerTestConfig {
 
     @MockBean
     private PostService postService;
+
+    private User 유저1;
+    private Post 게시물1;
+    private List<Post> 게시물_모음;
+
+    @BeforeEach
+    void setUp() {
+        유저1 = 유저1();
+        게시물1 = 게시물1(유저1, null);
+        게시물_모음 = 게시물_모음(유저1, null);
+    }
 
     @DisplayName("게시물 생성 요청을 받아 처리 후 201 코드를 반환하고 게시물 조회 URI를 반환한다.")
     @Test
@@ -201,6 +219,53 @@ class PostControllerTest extends ControllerTestConfig {
                 .andDo(MockMvcResultHandlers.print());
     }
 
+    @DisplayName("게시물 목록을 최신 순서로 조회한다.")
+    @Test
+    void findRecentPosts() throws Exception {
+        //given
+        final Long postId = 1l;
+        final Long userId = 1l;
+        ReflectionTestUtils.setField(유저1, "id", userId);
+
+        int page = 0;
+        int size = 20;
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
+
+        PostSliceResponse<PostSummaryResponse> postSliceResponse = PostSliceResponse.from(getPostSummaryResponses(postId, pageRequest));
+        when(postService.findPostsInLatestOrder(pageRequest)).thenReturn(postSliceResponse);
+
+        //when, then
+        mockMvc.perform(RestDocumentationRequestBuilders.get("/api/posts/recent")
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size))
+                        .param("sort", "createdAt,desc")
+                        .header("AuthorizationCode", "tmp"))
+                .andExpect(status().isOk())
+                .andDo(document("post-find-recent",
+                                resourceDetails().tag("게시물").description("게시물 최근 조회")
+                                        .responseSchema(Schema.schema("PostSliceResponse")),
+                                queryParameters(
+                                        parameterWithName("page").description("현재 페이지"),
+                                        parameterWithName("size").description("페이지 당 게시물 수"),
+                                        parameterWithName("sort").description("정렬 기준")
+                                ),
+                                responseFields(
+                                        fieldWithPath("numberOfElements").type(JsonFieldType.NUMBER).description("게시글 수"),
+                                        fieldWithPath("hasNext").type(JsonFieldType.BOOLEAN).description("마지막 페이지 체크"),
+                                        fieldWithPath("data[]").type(JsonFieldType.ARRAY).description("게시글 데이터"),
+                                        fieldWithPath("data[].postId").type(JsonFieldType.NUMBER).description("게시글 번호"),
+                                        fieldWithPath("data[].thumbnailImage").type(JsonFieldType.STRING).description("시리즈"),
+                                        fieldWithPath("data[].title").type(JsonFieldType.STRING).description("시리즈 번호"),
+                                        fieldWithPath("data[].summary").type(JsonFieldType.STRING).description("시리즈 이름"),
+                                        fieldWithPath("data[].userId").type(JsonFieldType.NUMBER).description("게시글 작성자 번호"),
+                                        fieldWithPath("data[].createdAt").type(JsonFieldType.NULL).description("게시글 작성 시간"),
+                                        fieldWithPath("data[].commentCount").type(JsonFieldType.NUMBER).description("댓글"),
+                                        fieldWithPath("data[].likeCount").type(JsonFieldType.NUMBER).description("댓글 작성자 번호")
+                                )
+                        )
+                );
+    }
+
     @DisplayName("사용자의 게시물 업데이트 요청을 받아 업데이트 한 뒤 204 상태코드를 반환한다.")
     @Test
     void updatePostTest() throws Exception {
@@ -257,6 +322,18 @@ class PostControllerTest extends ControllerTestConfig {
                 "변경된 URL",
                 "변경된 경로"
         );
+    }
+
+    private Slice<PostSummaryResponse> getPostSummaryResponses(Long postId, PageRequest pageRequest) {
+        int likeCount = 0;
+        int commentCount = 0;
+        Slice<Post> slice = new SliceImpl<>(게시물_모음, pageRequest, false);
+        Slice<PostSummaryResponse> postSummaryResponses = slice
+                .map(post -> {
+                    ReflectionTestUtils.setField(post, "id", postId);
+                    return PostSummaryResponse.of(post, commentCount, likeCount);
+                });
+        return postSummaryResponses;
     }
 
 }
