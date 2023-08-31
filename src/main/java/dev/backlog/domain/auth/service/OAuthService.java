@@ -2,8 +2,8 @@ package dev.backlog.domain.auth.service;
 
 import dev.backlog.domain.auth.AuthTokens;
 import dev.backlog.domain.auth.AuthTokensGenerator;
-import dev.backlog.domain.auth.model.oauth.authcode.AuthCodeRequestUrlProviderComposite;
 import dev.backlog.domain.auth.model.oauth.OAuthProvider;
+import dev.backlog.domain.auth.model.oauth.authcode.AuthCodeRequestUrlProviderComposite;
 import dev.backlog.domain.auth.model.oauth.client.OAuthMemberClientComposite;
 import dev.backlog.domain.auth.model.oauth.dto.OAuthInfoResponse;
 import dev.backlog.domain.auth.model.oauth.dto.SignupRequest;

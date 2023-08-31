@@ -22,7 +22,7 @@ public class KakaoMemberClient implements OAuthMemberClient {
     }
 
     @Override
-    public OAuthInfoResponse fetch(String authCode){
+    public OAuthInfoResponse fetch(String authCode) {
         KakaoTokens tokenInfo = kakaoApiClient.fetchToken(authCode);
         KakaoMemberResponse response = kakaoApiClient.fetchMember(BEARER_TYPE + tokenInfo.accessToken());
 
