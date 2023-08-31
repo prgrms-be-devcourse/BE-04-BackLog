@@ -1,8 +1,8 @@
 package dev.backlog.domain.auth.api;
 
 import dev.backlog.domain.auth.AuthTokens;
-import dev.backlog.domain.auth.service.OAuthService;
 import dev.backlog.domain.auth.model.oauth.OAuthProvider;
+import dev.backlog.domain.auth.service.OAuthService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

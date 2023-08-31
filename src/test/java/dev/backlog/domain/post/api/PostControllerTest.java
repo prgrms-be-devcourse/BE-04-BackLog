@@ -11,11 +11,6 @@ import dev.backlog.domain.post.dto.PostUpdateRequest;
 import dev.backlog.domain.post.service.PostService;
 import dev.backlog.domain.series.dto.SeriesResponse;
 import dev.backlog.domain.user.dto.Writer;
-import dev.backlog.domain.series.dto.SeriesResponse;
-import dev.backlog.domain.user.dto.Writer;
-import dev.backlog.domain.series.model.Series;
-import dev.backlog.domain.user.model.User;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -42,7 +37,6 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.requestF
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
-import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -204,71 +198,6 @@ class PostControllerTest extends ControllerTestConfig {
                                 )
                         )
                 );
-                .andDo(document("posts-find-series",
-                                resourceDetails().tag("게시물").description("시리즈별 게시물 조회")
-                                        .responseSchema(Schema.schema("PostSliceResponse")),
-                                queryParameters(
-                                        parameterWithName("series").description("시리즈 이름"),
-                                        parameterWithName("page").description("현재 페이지"),
-                                        parameterWithName("size").description("페이지 당 게시물 수"),
-                                        parameterWithName("sort").description("정렬 기준")
-                                ),
-                                responseFields(
-                                        fieldWithPath("numberOfElements").type(JsonFieldType.NUMBER).description("게시글 수"),
-                                        fieldWithPath("hasNext").type(JsonFieldType.BOOLEAN).description("마지막 페이지 체크"),
-                                        fieldWithPath("data[]").type(JsonFieldType.ARRAY).description("게시글 데이터"),
-                                        fieldWithPath("data[].postId").type(JsonFieldType.NUMBER).description("게시글 번호"),
-                                        fieldWithPath("data[].thumbnailImage").type(JsonFieldType.STRING).description("시리즈"),
-                                        fieldWithPath("data[].title").type(JsonFieldType.STRING).description("시리즈 번호"),
-                                        fieldWithPath("data[].summary").type(JsonFieldType.STRING).description("시리즈 이름"),
-                                        fieldWithPath("data[].userId").type(JsonFieldType.NUMBER).description("게시글 작성자 번호"),
-                                        fieldWithPath("data[].createdAt").type(JsonFieldType.NULL).description("게시글 작성 시간"),
-                                        fieldWithPath("data[].commentCount").type(JsonFieldType.NUMBER).description("댓글"),
-                                        fieldWithPath("data[].likeCount").type(JsonFieldType.NUMBER).description("댓글 작성자 번호")
-                                )
-                        )
-                );
-    }
-
-    @DisplayName("게시물 목록을 최신 순서로 조회한다.")
-    @Test
-    void findRecentPosts() throws Exception {
-        //given
-        final long postId = 1l;
-        final long userId = 1l;
-        PostSliceResponse<PostSummaryResponse> postSliceResponse = getPostSliceResponse(postId, userId);
-        when(postService.findPostsInLatestOrder(any(PageRequest.class))).thenReturn(postSliceResponse);
-
-        //when, then
-        mockMvc.perform(get("/api/posts/recent")
-                        .param("page", String.valueOf(0))
-                        .param("size", String.valueOf(20))
-                        .param("sort", "createdAt,desc")
-                        .header("AuthorizationCode", "tmp"))
-                .andExpect(status().isOk())
-                .andDo(document("posts-find-recent",
-                                resourceDetails().tag("게시물").description("게시물 최근 조회")
-                                        .responseSchema(Schema.schema("PostSliceResponse")),
-                                queryParameters(
-                                        parameterWithName("page").description("현재 페이지"),
-                                        parameterWithName("size").description("페이지 당 게시물 수"),
-                                        parameterWithName("sort").description("정렬 기준")
-                                ),
-                                responseFields(
-                                        fieldWithPath("numberOfElements").type(JsonFieldType.NUMBER).description("게시글 수"),
-                                        fieldWithPath("hasNext").type(JsonFieldType.BOOLEAN).description("마지막 페이지 체크"),
-                                        fieldWithPath("data[]").type(JsonFieldType.ARRAY).description("게시글 데이터"),
-                                        fieldWithPath("data[].postId").type(JsonFieldType.NUMBER).description("게시글 번호"),
-                                        fieldWithPath("data[].thumbnailImage").type(JsonFieldType.STRING).description("시리즈"),
-                                        fieldWithPath("data[].title").type(JsonFieldType.STRING).description("시리즈 번호"),
-                                        fieldWithPath("data[].summary").type(JsonFieldType.STRING).description("시리즈 이름"),
-                                        fieldWithPath("data[].userId").type(JsonFieldType.NUMBER).description("게시글 작성자 번호"),
-                                        fieldWithPath("data[].createdAt").type(JsonFieldType.NULL).description("게시글 작성 시간"),
-                                        fieldWithPath("data[].commentCount").type(JsonFieldType.NUMBER).description("댓글"),
-                                        fieldWithPath("data[].likeCount").type(JsonFieldType.NUMBER).description("댓글 작성자 번호")
-                                )
-                        )
-                );
     }
 
     @DisplayName("게시물 목록을 최신 순서로 조회한다.")
@@ -351,47 +280,6 @@ class PostControllerTest extends ControllerTestConfig {
                 false,
                 "변경된 URL",
                 "변경된 경로"
-        );
-    }
-
-    private PostResponse getPostResponse(
-            long postId,
-            long seriesId,
-            long userId,
-            long commentId) {
-        return new PostResponse(
-                postId,
-                new SeriesResponse(seriesId, "시리즈"),
-                userId,
-                "제목",
-                0l,
-                "내용",
-                "요약",
-                true,
-                "경로",
-                null,
-                List.of(new CommentResponse(
-                        commentId,
-                        new Writer(userId, "닉네임"),
-                        "내용", null)
-                )
-        );
-    }
-
-    private PostSliceResponse<PostSummaryResponse> getPostSliceResponse(long postId, long userId) {
-        return new PostSliceResponse<PostSummaryResponse>(
-                10,
-                false,
-                List.of(new PostSummaryResponse(
-                        postId,
-                        "썸네일 이미지",
-                        "제목",
-                        "요약",
-                        userId,
-                        null,
-                        0,
-                        0)
-                )
         );
     }
 

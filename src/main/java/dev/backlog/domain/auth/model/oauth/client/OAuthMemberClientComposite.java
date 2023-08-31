@@ -21,11 +21,11 @@ public class OAuthMemberClientComposite {
         );
     }
 
-    public OAuthInfoResponse fetch(OAuthProvider oAuthProvider, String authCode){
+    public OAuthInfoResponse fetch(OAuthProvider oAuthProvider, String authCode) {
         return getClient(oAuthProvider).fetch(authCode);
     }
 
-    public OAuthMemberClient getClient(OAuthProvider oAuthProvider){
+    public OAuthMemberClient getClient(OAuthProvider oAuthProvider) {
         return Optional.ofNullable(mapping.get(oAuthProvider))
                 .orElseThrow(() -> new IllegalArgumentException("지원하지 않는 로그인 타입입니다."));
     }
