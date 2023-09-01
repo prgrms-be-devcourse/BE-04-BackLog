@@ -1,24 +1,18 @@
 package dev.backlog.domain.auth.api;
 
 import com.epages.restdocs.apispec.Schema;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.backlog.common.config.ControllerTestConfig;
 import dev.backlog.domain.auth.AuthTokens;
 import dev.backlog.domain.auth.model.oauth.OAuthProvider;
 import dev.backlog.domain.auth.model.oauth.dto.SignupRequest;
 import dev.backlog.domain.auth.service.OAuthService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
-import org.springframework.test.web.servlet.MockMvc;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.resourceDetails;
@@ -41,17 +35,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@AutoConfigureRestDocs
-@AutoConfigureMockMvc
-@ExtendWith({RestDocumentationExtension.class})
 @WebMvcTest(AuthController.class)
-class AuthControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+class AuthControllerTest extends ControllerTestConfig {
 
     @MockBean
     private OAuthService oAuthService;
@@ -86,25 +71,9 @@ class AuthControllerTest {
     @DisplayName("올바른 로그인 타입과 인증 코드, 추가 정보를 받아 회원가입에 성공한다.")
     @Test
     void signupTest() throws Exception {
-        String authCode = "authCode";
-        String accessToken = "accessToken";
-        String refreshToken = "refreshToken";
-        String grantType = "Bearer ";
-        Long expiresIn = 1000L;
 
-        SignupRequest signupRequest = SignupRequest.builder()
-                .blogTitle("블로그 제목")
-                .introduction("소개")
-                .authCode(authCode)
-                .oAuthProvider(OAuthProvider.KAKAO)
-                .build();
-
-        AuthTokens expectedTokens = AuthTokens.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .grantType(grantType)
-                .expiresIn(expiresIn)
-                .build();
+        SignupRequest signupRequest = createSignupRequest();
+        AuthTokens expectedTokens = createAuthTokens();
 
         when(oAuthService.signup(signupRequest)).thenReturn(expectedTokens);
 
@@ -134,35 +103,25 @@ class AuthControllerTest {
                         )
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").value(accessToken))
-                .andExpect(jsonPath("$.refreshToken").value(refreshToken))
-                .andExpect(jsonPath("$.grantType").value(grantType))
-                .andExpect(jsonPath("$.expiresIn").value(expiresIn)
+                .andExpect(jsonPath("$.accessToken").value("accessToken"))
+                .andExpect(jsonPath("$.refreshToken").value("refreshToken"))
+                .andExpect(jsonPath("$.grantType").value("Bearer "))
+                .andExpect(jsonPath("$.expiresIn").value(1000L)
                 );
     }
 
     @DisplayName("올바른 로그인 타입과 인증 코드를 받아 로그인에 성공한다.")
     @Test
     void loginTest() throws Exception {
-        String code = "authCode";
-        String accessToken = "accessToken";
-        String refreshToken = "refreshToken";
-        String grantType = "Bearer ";
-        Long expiresIn = 1000L;
 
-        AuthTokens expectedTokens = AuthTokens.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .grantType(grantType)
-                .expiresIn(expiresIn)
-                .build();
+        AuthTokens expectedTokens = createAuthTokens();
 
         when(oAuthService.login(any(), any())).thenReturn(expectedTokens);
 
         mockMvc.perform(get("/api/auth/v2/login/{oAuthProvider}", OAuthProvider.KAKAO)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("code", code)
+                        .param("code", "authCode")
                 )
                 .andDo(document("auth-login",
                                 resourceDetails().tag("Auth").description("로그인")
@@ -184,11 +143,28 @@ class AuthControllerTest {
                         )
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").value(accessToken))
-                .andExpect(jsonPath("$.refreshToken").value(refreshToken))
-                .andExpect(jsonPath("$.grantType").value(grantType))
-                .andExpect(jsonPath("$.expiresIn").value(expiresIn)
-                );
+                .andExpect(jsonPath("$.accessToken").value("accessToken"))
+                .andExpect(jsonPath("$.refreshToken").value("refreshToken"))
+                .andExpect(jsonPath("$.grantType").value("Bearer "))
+                .andExpect(jsonPath("$.expiresIn").value(1000L));
+    }
+
+    private SignupRequest createSignupRequest() {
+        return SignupRequest.builder()
+                .blogTitle("블로그 제목")
+                .introduction("소개")
+                .authCode("authCode")
+                .oAuthProvider(OAuthProvider.KAKAO)
+                .build();
+    }
+
+    private AuthTokens createAuthTokens() {
+        return AuthTokens.builder()
+                .accessToken("accessToken")
+                .refreshToken("refreshToken")
+                .grantType("Bearer ")
+                .expiresIn(1000L)
+                .build();
     }
 
 }
