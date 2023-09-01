@@ -14,7 +14,7 @@ import java.util.List;
 
 import static dev.backlog.domain.auth.model.oauth.OAuthProvider.KAKAO;
 
-public class TestFixture {
+public class EntityFixture {
 
     public static User 유저1() {
         return User.builder()

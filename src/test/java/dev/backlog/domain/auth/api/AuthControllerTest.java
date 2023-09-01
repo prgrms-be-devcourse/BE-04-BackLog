@@ -2,6 +2,7 @@ package dev.backlog.domain.auth.api;
 
 import com.epages.restdocs.apispec.Schema;
 import dev.backlog.common.config.ControllerTestConfig;
+import dev.backlog.common.fixture.DtoFixture;
 import dev.backlog.domain.auth.AuthTokens;
 import dev.backlog.domain.auth.model.oauth.OAuthProvider;
 import dev.backlog.domain.auth.model.oauth.dto.SignupRequest;
@@ -72,8 +73,8 @@ class AuthControllerTest extends ControllerTestConfig {
     @Test
     void signupTest() throws Exception {
 
-        SignupRequest signupRequest = createSignupRequest();
-        AuthTokens expectedTokens = createAuthTokens();
+        SignupRequest signupRequest = DtoFixture.회원가입정보();
+        AuthTokens expectedTokens = DtoFixture.토큰생성();
 
         when(oAuthService.signup(signupRequest)).thenReturn(expectedTokens);
 
@@ -114,7 +115,7 @@ class AuthControllerTest extends ControllerTestConfig {
     @Test
     void loginTest() throws Exception {
 
-        AuthTokens expectedTokens = createAuthTokens();
+        AuthTokens expectedTokens = DtoFixture.토큰생성();
 
         when(oAuthService.login(any(), any())).thenReturn(expectedTokens);
 
@@ -147,24 +148,6 @@ class AuthControllerTest extends ControllerTestConfig {
                 .andExpect(jsonPath("$.refreshToken").value("refreshToken"))
                 .andExpect(jsonPath("$.grantType").value("Bearer "))
                 .andExpect(jsonPath("$.expiresIn").value(1000L));
-    }
-
-    private SignupRequest createSignupRequest() {
-        return SignupRequest.builder()
-                .blogTitle("블로그 제목")
-                .introduction("소개")
-                .authCode("authCode")
-                .oAuthProvider(OAuthProvider.KAKAO)
-                .build();
-    }
-
-    private AuthTokens createAuthTokens() {
-        return AuthTokens.builder()
-                .accessToken("accessToken")
-                .refreshToken("refreshToken")
-                .grantType("Bearer ")
-                .expiresIn(1000L)
-                .build();
     }
 
 }
