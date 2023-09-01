@@ -33,12 +33,11 @@ public class AuthTokensGenerator {
         String accessToken = jwtTokenProvider.generate(subject, accessTokenExpiredAt);
         String refreshToken = jwtTokenProvider.generate(subject, refreshTokenExpiredAt);
 
-        return AuthTokens.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .grantType(BEARER_TYPE)
-                .expiresIn(accessTokenExpireTime / 1000L)
-                .build();
+        return AuthTokens.of(
+                accessToken,
+                refreshToken,
+                BEARER_TYPE,
+                (accessTokenExpireTime / 1000L));
     }
 
 }

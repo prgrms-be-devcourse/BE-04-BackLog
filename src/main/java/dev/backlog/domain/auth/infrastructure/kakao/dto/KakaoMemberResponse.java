@@ -12,13 +12,13 @@ public record KakaoMemberResponse(
         KakaoAccount kakaoAccount
 ) {
     public OAuthInfoResponse toOAuthInfoResponse() {
-        return OAuthInfoResponse.builder()
-                .oAuthProvider(OAuthProvider.KAKAO)
-                .oAuthProviderId(String.valueOf(id))
-                .nickname(kakaoAccount.profile.nickname)
-                .email(new Email(kakaoAccount.email))
-                .profileImage(kakaoAccount.profile.profileImageUrl)
-                .build();
+        return OAuthInfoResponse.of(
+                kakaoAccount.profile.nickname,
+                kakaoAccount.profile.profileImageUrl,
+                new Email(kakaoAccount.email),
+                OAuthProvider.KAKAO,
+                String.valueOf(id)
+        );
     }
 
     @JsonNaming(SnakeCaseStrategy.class)
