@@ -35,12 +35,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import static dev.backlog.common.fixture.TestFixture.게시물1;
-import static dev.backlog.common.fixture.TestFixture.게시물_모음;
-import static dev.backlog.common.fixture.TestFixture.댓글_모음;
-import static dev.backlog.common.fixture.TestFixture.시리즈1;
-import static dev.backlog.common.fixture.TestFixture.유저1;
-import static dev.backlog.common.fixture.TestFixture.좋아요1;
+import static dev.backlog.common.fixture.EntityFixture.게시물1;
+import static dev.backlog.common.fixture.EntityFixture.유저1;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 

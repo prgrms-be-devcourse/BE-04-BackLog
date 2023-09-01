@@ -1,6 +1,7 @@
 package dev.backlog.domain.auth.service;
 
-import dev.backlog.common.fixture.TestFixture;
+import dev.backlog.common.fixture.DtoFixture;
+import dev.backlog.common.fixture.EntityFixture;
 import dev.backlog.domain.auth.AuthTokens;
 import dev.backlog.domain.auth.AuthTokensGenerator;
 import dev.backlog.domain.auth.model.oauth.OAuthProvider;
@@ -9,7 +10,6 @@ import dev.backlog.domain.auth.model.oauth.client.OAuthMemberClientComposite;
 import dev.backlog.domain.auth.model.oauth.dto.OAuthInfoResponse;
 import dev.backlog.domain.auth.model.oauth.dto.SignupRequest;
 import dev.backlog.domain.user.infrastructure.persistence.UserRepository;
-import dev.backlog.domain.user.model.Email;
 import dev.backlog.domain.user.model.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -56,18 +56,10 @@ class OAuthServiceTest {
     @DisplayName("회원가입에 성공하면 토큰을 생성해 반환한다.")
     @Test
     void signupTest() {
-        SignupRequest signupRequest = createSignupRequest();
-        AuthTokens authToken = createAuthTokens();
-
-        OAuthInfoResponse response = OAuthInfoResponse.builder()
-                .nickname("닉네임")
-                .profileImage("프로필 사진")
-                .email(new Email("test123@gmail.com"))
-                .oAuthProvider(OAuthProvider.KAKAO)
-                .oAuthProviderId("1a2b3c")
-                .build();
-
-        User newUser = TestFixture.유저1();
+        SignupRequest signupRequest = DtoFixture.회원가입정보();
+        AuthTokens authToken = DtoFixture.토큰생성();
+        User newUser = EntityFixture.유저1();
+        OAuthInfoResponse response = createOAuthInfoResponse(newUser);
 
         when(oAuthMemberClientComposite.fetch(signupRequest.oAuthProvider(), signupRequest.authCode())).thenReturn(response);
         when(userRepository.save(any())).thenReturn(newUser);
@@ -86,9 +78,9 @@ class OAuthServiceTest {
     @DisplayName("로그인에 성공하면 토큰을 생성해 반환한다.")
     @Test
     void loginTest() {
-        User user = TestFixture.유저1();
+        User user = EntityFixture.유저1();
         OAuthInfoResponse response = createOAuthInfoResponse(user);
-        AuthTokens expectedToken = createAuthTokens();
+        AuthTokens expectedToken = DtoFixture.토큰생성();
 
         when(oAuthMemberClientComposite.fetch(any(), any())).thenReturn(response);
         when(userRepository.findByOauthProviderIdAndOauthProvider(user.getOauthProviderId(), user.getOauthProvider())).thenReturn(Optional.of(user));
@@ -104,32 +96,14 @@ class OAuthServiceTest {
         );
     }
 
-    private SignupRequest createSignupRequest() {
-        return SignupRequest.builder()
-                .blogTitle("블로그 제목")
-                .introduction("소개")
-                .authCode("authCode")
-                .oAuthProvider(OAuthProvider.KAKAO)
-                .build();
-    }
-
-    private AuthTokens createAuthTokens() {
-        return AuthTokens.builder()
-                .accessToken("accessToken")
-                .refreshToken("refreshToken")
-                .grantType("Bearer ")
-                .expiresIn(1000L)
-                .build();
-    }
-
     private OAuthInfoResponse createOAuthInfoResponse(User user) {
-        return OAuthInfoResponse.builder()
-                .nickname(user.getNickname())
-                .profileImage(user.getProfileImage())
-                .email(user.getEmail())
-                .oAuthProvider(user.getOauthProvider())
-                .oAuthProviderId(user.getOauthProviderId())
-                .build();
+        return OAuthInfoResponse.of(
+                user.getNickname(),
+                user.getProfileImage(),
+                user.getEmail(),
+                user.getOauthProvider(),
+                user.getOauthProviderId()
+        );
     }
 
 }
