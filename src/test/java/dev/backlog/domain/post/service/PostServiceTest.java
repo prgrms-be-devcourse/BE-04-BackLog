@@ -2,7 +2,6 @@ package dev.backlog.domain.post.service;
 
 import dev.backlog.common.config.JpaConfig;
 import dev.backlog.common.config.TestContainerConfig;
-import dev.backlog.common.util.TestFixtureUtil;
 import dev.backlog.domain.comment.infrastructure.persistence.CommentRepository;
 import dev.backlog.domain.comment.model.Comment;
 import dev.backlog.domain.hashtag.infrastructure.persistence.HashtagRepository;
@@ -37,7 +36,11 @@ import java.util.List;
 import java.util.Set;
 
 import static dev.backlog.common.fixture.TestFixture.게시물1;
+import static dev.backlog.common.fixture.TestFixture.게시물_모음;
+import static dev.backlog.common.fixture.TestFixture.댓글_모음;
+import static dev.backlog.common.fixture.TestFixture.시리즈1;
 import static dev.backlog.common.fixture.TestFixture.유저1;
+import static dev.backlog.common.fixture.TestFixture.좋아요1;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
@@ -71,11 +74,15 @@ class PostServiceTest extends TestContainerConfig {
 
     private User 유저1;
     private Post 게시물1;
+    private List<Post> 게시물_모음;
+    private List<Comment> 댓글_모음;
 
     @BeforeEach
     void setUp() {
-        유저1 = userRepository.save(유저1());
-        게시물1 = postRepository.save(게시물1(유저1));
+        유저1 = 유저1();
+        게시물1 = 게시물1(유저1, null);
+        게시물_모음 = 게시물_모음(유저1, null);
+        댓글_모음 = 댓글_모음(유저1, 게시물1);
     }
 
     @AfterEach
@@ -93,15 +100,9 @@ class PostServiceTest extends TestContainerConfig {
     @Test
     void findPostById() {
         //given
-        User user = TestFixtureUtil.createUser();
-        userRepository.save(user);
-
-        Post post = TestFixtureUtil.createPost(user, null);
-        postRepository.save(post);
-
-        Comment comment1 = TestFixtureUtil.createComment(user, post);
-        Comment comment2 = TestFixtureUtil.createComment(user, post);
-        commentRepository.saveAll(List.of(comment1, comment2));
+        User user = userRepository.save(유저1);
+        Post post = postRepository.save(게시물1);
+        commentRepository.saveAll(댓글_모음);
 
         //when
         PostResponse postResponse = postService.findPostById(post.getId(), user.getId());
@@ -114,32 +115,27 @@ class PostServiceTest extends TestContainerConfig {
     @Test
     void sameUserCannotIncreaseViewCountForSamePostWithin3Hours() {
         //given
-        User user = TestFixtureUtil.createUser();
-        User savedUser = userRepository.save(user);
-
-        Post post = TestFixtureUtil.createPost(user, null);
-        Post savedPost = postRepository.save(post);
-
-        Comment comment1 = TestFixtureUtil.createComment(user, post);
-        Comment comment2 = TestFixtureUtil.createComment(user, post);
-        commentRepository.saveAll(List.of(comment1, comment2));
+        User user = userRepository.save(유저1);
+        Post post = postRepository.save(게시물1);
+        commentRepository.saveAll(댓글_모음);
 
         //when
-        PostResponse firstSamePostResponse = postService.findPostById(savedPost.getId(), savedUser.getId());
-        PostResponse secondSamePostResponse = postService.findPostById(savedPost.getId(), savedUser.getId());
+        PostResponse firstSamePostResponse = postService.findPostById(post.getId(), user.getId());
+        PostResponse secondSamePostResponse = postService.findPostById(post.getId(), user.getId());
 
         //then
         long increasedViewCount = 1L;
 
-        assertThat(secondSamePostResponse.viewCount()).isEqualTo(increasedViewCount);
-        assertThat(firstSamePostResponse.viewCount()).isEqualTo(secondSamePostResponse.viewCount());
+        assertAll(
+                () -> assertThat(secondSamePostResponse.viewCount()).isEqualTo(increasedViewCount),
+                () -> assertThat(firstSamePostResponse.viewCount()).isEqualTo(secondSamePostResponse.viewCount())
+        );
     }
 
     @DisplayName("포스트 생성요청과 유저의 아이디를 받아 게시물을 저장할 수 있다.")
     @Test
     void createTest() {
-        User user = TestFixtureUtil.createUser();
-        User savedUser = userRepository.save(user);
+        User user = userRepository.save(유저1);
 
         PostCreateRequest request = new PostCreateRequest(
                 null,
@@ -152,7 +148,7 @@ class PostServiceTest extends TestContainerConfig {
                 "/path"
         );
 
-        Long postId = postService.create(request, savedUser.getId());
+        Long postId = postService.create(request, user.getId());
         assertThat(postId).isNotNull();
     }
 
@@ -160,17 +156,13 @@ class PostServiceTest extends TestContainerConfig {
     @Test
     void findLikedPostsByUser() {
         //given
-        User user = TestFixtureUtil.createUser();
-        userRepository.save(user);
+        User user = userRepository.save(유저1);
 
-        int postCount = 30;
-        List<Post> posts = TestFixtureUtil.createPosts(user, null, postCount);
-        postRepository.saveAll(posts);
-        posts.stream()
-                .forEach(post -> {
-                    Like like = TestFixtureUtil.createLike(user, post);
-                    likeRepository.save(like);
-                });
+        List<Post> posts = postRepository.saveAll(게시물_모음);
+        for (Post post : posts) {
+            Like like = 좋아요1(user, post);
+            likeRepository.save(like);
+        }
 
         PageRequest pageRequest = PageRequest.of(1, 20, Sort.Direction.DESC, "createdAt");
 
@@ -178,31 +170,20 @@ class PostServiceTest extends TestContainerConfig {
         PostSliceResponse postSliceResponse = postService.findLikedPostsByUser(user.getId(), pageRequest);
 
         //then
-        int expectedCount = 10;
-
-        assertThat(postSliceResponse.data()).isSortedAccordingTo(Comparator.comparing(PostSummaryResponse::createdAt).reversed());
-        assertThat(postSliceResponse.hasNext()).isFalse();
-        assertThat(postSliceResponse.numberOfElements()).isEqualTo(expectedCount);
+        assertAll(
+                () -> assertThat(postSliceResponse.data()).isSortedAccordingTo(Comparator.comparing(PostSummaryResponse::createdAt).reversed()),
+                () -> assertThat(postSliceResponse.hasNext()).isFalse(),
+                () -> assertThat(postSliceResponse.numberOfElements()).isEqualTo(postSliceResponse.data().size())
+        );
     }
 
     @DisplayName("사용자와 시리즈 이름으로 게시글들을 과거순으로 조회할 수 있다.")
     @Test
     void findPostsByUserAndSeries() {
         //given
-        User user = TestFixtureUtil.createUser();
-        userRepository.save(user);
-
-        Series series = TestFixtureUtil.createSeries(user);
-        seriesRepository.save(series);
-
-        int postCount = 30;
-        List<Post> posts = TestFixtureUtil.createPosts(user, series, postCount);
-        postRepository.saveAll(posts);
-        posts.stream()
-                .forEach(post -> {
-                    Like like = TestFixtureUtil.createLike(user, post);
-                    likeRepository.save(like);
-                });
+        User user = userRepository.save(유저1);
+        Series series = seriesRepository.save(시리즈1(user));
+        postRepository.saveAll(게시물_모음(user, series));
 
         PageRequest pageRequest = PageRequest.of(1, 20, Sort.Direction.ASC, "createdAt");
 
@@ -210,16 +191,38 @@ class PostServiceTest extends TestContainerConfig {
         PostSliceResponse<PostSummaryResponse> postSliceResponse = postService.findPostsByUserAndSeries(user.getId(), series.getName(), pageRequest);
 
         //then
-        int expectedCount = 10;
+        assertAll(
+                () -> assertThat(postSliceResponse.data()).isSortedAccordingTo(Comparator.comparing(PostSummaryResponse::createdAt)),
+                () -> assertThat(postSliceResponse.hasNext()).isFalse(),
+                () -> assertThat(postSliceResponse.numberOfElements()).isEqualTo(postSliceResponse.data().size())
+        );
+    }
 
-        assertThat(postSliceResponse.data()).isSortedAccordingTo(Comparator.comparing(PostSummaryResponse::createdAt));
-        assertThat(postSliceResponse.hasNext()).isFalse();
-        assertThat(postSliceResponse.numberOfElements()).isEqualTo(expectedCount);
+    @DisplayName("최신 순서로 등록된 게시물 목록을 조회할 수 있다.")
+    @Test
+    void findPostsInLatestOrder() {
+        //given
+        userRepository.save(유저1);
+        postRepository.saveAll(게시물_모음);
+
+        PageRequest pageRequest = PageRequest.of(1, 20, Sort.Direction.DESC, "createdAt");
+
+        //when
+        PostSliceResponse<PostSummaryResponse> postSliceResponse = postService.findPostsInLatestOrder(pageRequest);
+
+        //then
+        assertAll(
+                () -> assertThat(postSliceResponse.data()).isSortedAccordingTo(Comparator.comparing(PostSummaryResponse::createdAt).reversed()),
+                () -> assertThat(postSliceResponse.hasNext()).isFalse(),
+                () -> assertThat(postSliceResponse.numberOfElements()).isEqualTo(postSliceResponse.data().size())
+        );
     }
 
     @DisplayName("게시물 업데이트의 대한 정보를 받아서 게시물을 업데이트한다.")
     @Test
     void updatePostTest() {
+        userRepository.save(유저1);
+        postRepository.save(게시물1);
         PostUpdateRequest request = getPostUpdateRequest();
         postService.updatePost(request, 게시물1.getId(), 유저1.getId());
 
@@ -240,8 +243,9 @@ class PostServiceTest extends TestContainerConfig {
     @DisplayName("게시물 작성자는 게시물을 삭제할 수 있다.")
     @Test
     void deletePostTest() {
+        userRepository.save(유저1);
+        postRepository.save(게시물1);
         Long postId = 게시물1.getId();
-
         postService.deletePost(postId, 유저1.getId());
         boolean result = postRepository.findById(postId).isPresent();
 
@@ -251,9 +255,11 @@ class PostServiceTest extends TestContainerConfig {
     @DisplayName("게시물 작성자가 아니면 게시물을 삭제할 수 없다.")
     @Test
     void deletePostFailTest() {
+        userRepository.save(유저1);
+        postRepository.save(게시물1);
         Long postId = 게시물1.getId();
-
-        Assertions.assertThatThrownBy(() -> postService.deletePost(postId, 유저1.getId() + 1))
+        Long userId = 유저1.getId();
+        Assertions.assertThatThrownBy(() -> postService.deletePost(postId, userId + 1))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 

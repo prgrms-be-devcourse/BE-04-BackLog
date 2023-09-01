@@ -2,51 +2,43 @@ package dev.backlog.domain.post.api;
 
 import com.epages.restdocs.apispec.Schema;
 import dev.backlog.common.config.ControllerTestConfig;
-import dev.backlog.common.util.TestFixtureUtil;
-import dev.backlog.domain.comment.model.Comment;
+import dev.backlog.domain.comment.dto.CommentResponse;
 import dev.backlog.domain.post.dto.PostCreateRequest;
 import dev.backlog.domain.post.dto.PostResponse;
 import dev.backlog.domain.post.dto.PostSliceResponse;
 import dev.backlog.domain.post.dto.PostSummaryResponse;
 import dev.backlog.domain.post.dto.PostUpdateRequest;
-import dev.backlog.domain.post.model.Post;
 import dev.backlog.domain.post.service.PostService;
-import dev.backlog.domain.series.model.Series;
-import dev.backlog.domain.user.model.User;
+import dev.backlog.domain.series.dto.SeriesResponse;
+import dev.backlog.domain.user.dto.Writer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import java.util.List;
 import java.util.Set;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.resourceDetails;
-import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(PostController.class)
@@ -84,132 +76,181 @@ class PostControllerTest extends ControllerTestConfig {
     @Test
     void findPost() throws Exception {
         //given
-        Long userId = 1L;
-        Long postId = 1L;
-        Long comment1Id = 1L;
-        Long comment2Id = 2L;
-        Long seriesId = 1L;
-
-        User user = TestFixtureUtil.createUser();
-        ReflectionTestUtils.setField(user, "id", userId);
-
-        Series series = TestFixtureUtil.createSeries(user);
-        ReflectionTestUtils.setField(series, "id", seriesId);
-
-        Post post = TestFixtureUtil.createPost(user, series);
-        ReflectionTestUtils.setField(post, "id", postId);
-
-        Comment comment1 = TestFixtureUtil.createComment(user, post);
-        ReflectionTestUtils.setField(comment1, "id", comment1Id);
-
-        Comment comment2 = TestFixtureUtil.createComment(user, post);
-        ReflectionTestUtils.setField(comment2, "id", comment2Id);
-
-        PostResponse postResponse = PostResponse.from(post, List.of(comment1, comment2));
-        when(postService.findPostById(postId, userId)).thenReturn(postResponse);
+        final long postId = 1l;
+        final long seriesId = 1l;
+        final long userId = 1l;
+        final long commentId = 1l;
+        PostResponse postResponse = getPostResponse(postId, seriesId, userId, commentId);
+        when(postService.findPostById(any(), any())).thenReturn(postResponse);
 
         //when, then
         mockMvc.perform(get("/api/posts/{postId}", postId)
-                        .param("userId", userId.toString()))
+                        .header("AuthorizationCode", "tmp"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.postId").value(postId))
-                .andExpect(jsonPath("$.series").isNotEmpty())
-                .andExpect(jsonPath("$.userId").value(userId))
-                .andExpect(jsonPath("$.title").value("test"))
-                .andExpect(jsonPath("$.viewCount").value(0))
-                .andExpect(jsonPath("$.content").value("test"))
-                .andExpect(jsonPath("$.summary").value("test"))
-                .andExpect(jsonPath("$.isPublic").value(true))
-                .andExpect(jsonPath("$.path").value("test"))
-                .andExpect(jsonPath("$.createdAt").isEmpty())
-                .andExpect(jsonPath("$.comments", hasSize(2)))
-                .andDo(MockMvcResultHandlers.print());
+                .andDo(document("post-find",
+                                resourceDetails().tag("게시물").description("게시물 상세 조회")
+                                        .responseSchema(Schema.schema("PostResponse")),
+                                pathParameters(parameterWithName("postId").description("게시물 식별자")),
+                                responseFields(
+                                        fieldWithPath("postId").type(JsonFieldType.NUMBER).description("게시글 번호"),
+                                        fieldWithPath("series").type(JsonFieldType.OBJECT).description("시리즈"),
+                                        fieldWithPath("series.seriesId").type(JsonFieldType.NUMBER).description("시리즈 번호"),
+                                        fieldWithPath("series.seriesName").type(JsonFieldType.STRING).description("시리즈 이름"),
+                                        fieldWithPath("userId").type(JsonFieldType.NUMBER).description("게시글 작성자 번호"),
+                                        fieldWithPath("title").type(JsonFieldType.STRING).description("게시글 제목"),
+                                        fieldWithPath("viewCount").type(JsonFieldType.NUMBER).description("게시글 조회수"),
+                                        fieldWithPath("content").type(JsonFieldType.STRING).description("게시글 본문"),
+                                        fieldWithPath("summary").type(JsonFieldType.STRING).description("게시글 요약"),
+                                        fieldWithPath("isPublic").type(JsonFieldType.BOOLEAN).description("게시글 공개 여부"),
+                                        fieldWithPath("path").type(JsonFieldType.STRING).description("게시글 저장 경로"),
+                                        fieldWithPath("createdAt").type(JsonFieldType.NULL).description("게시글 작성 시간"),
+                                        fieldWithPath("comments[]").type(JsonFieldType.ARRAY).description("댓글"),
+                                        fieldWithPath("comments[].commentId").type(JsonFieldType.NUMBER).description("댓글 작성자 번호"),
+                                        fieldWithPath("comments[].writer").type(JsonFieldType.OBJECT).description("댓글 작성자"),
+                                        fieldWithPath("comments[].writer.userId").type(JsonFieldType.NUMBER).description("댓글 작성자 번호"),
+                                        fieldWithPath("comments[].writer.nickname").type(JsonFieldType.STRING).description("댓글 작성자 닉네임"),
+                                        fieldWithPath("comments[].content").type(JsonFieldType.STRING).description("댓글 본문"),
+                                        fieldWithPath("comments[].createdAt").type(JsonFieldType.NULL).description("댓글 작성 시간")
+
+                                )
+                        )
+                );
     }
 
     @DisplayName("사용자가 좋아요를 누른 게시글 목록을 최신 순서로 반환한다.")
     @Test
     void findLikedPosts() throws Exception {
         //given
-        Long userId = 1L;
-        User user = TestFixtureUtil.createUser();
-
-        int postCount = 10;
-        List<Post> posts = TestFixtureUtil.createPosts(user, null, postCount);
-
-        int page = 0;
-        int size = 20;
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
-
-        int likeCount = 0;
-        int commentCount = 0;
-        Slice<Post> slice = new SliceImpl<>(posts, pageRequest, false);
-        Slice<PostSummaryResponse> postSummaryResponses = slice
-                .map(post -> PostSummaryResponse.of(post, commentCount, likeCount));
-
-        PostSliceResponse<PostSummaryResponse> postSliceResponse = PostSliceResponse.from(postSummaryResponses);
-        when(postService.findLikedPostsByUser(userId, pageRequest)).thenReturn(postSliceResponse);
+        final long postId = 1l;
+        final long userId = 1l;
+        PostSliceResponse<PostSummaryResponse> postSliceResponse = getPostSliceResponse(postId, userId);
+        when(postService.findLikedPostsByUser(any(), any(PageRequest.class))).thenReturn(postSliceResponse);
 
         //when, then
         mockMvc.perform(get("/api/posts/like")
-                        .param("userId", String.valueOf(userId))
-                        .param("page", String.valueOf(page))
-                        .param("size", String.valueOf(size))
-                        .param("sort", "createdAt,desc"))
+                        .param("page", String.valueOf(0))
+                        .param("size", String.valueOf(20))
+                        .param("sort", "createdAt,asc")
+                        .header("AuthorizationCode", "tmp"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.numberOfElements").value(postCount))
-                .andExpect(jsonPath("$.hasNext").value(false))
-                .andExpect(jsonPath("$.data", hasSize(postCount)))
-                .andDo(MockMvcResultHandlers.print());
+                .andDo(document("posts-find-like",
+                                resourceDetails().tag("게시물").description("좋아요 누른 게시물 조회")
+                                        .responseSchema(Schema.schema("PostSliceResponse")),
+                                queryParameters(
+                                        parameterWithName("page").description("현재 페이지"),
+                                        parameterWithName("size").description("페이지 당 게시물 수"),
+                                        parameterWithName("sort").description("정렬 기준")
+                                ),
+                                responseFields(
+                                        fieldWithPath("numberOfElements").type(JsonFieldType.NUMBER).description("게시글 수"),
+                                        fieldWithPath("hasNext").type(JsonFieldType.BOOLEAN).description("마지막 페이지 체크"),
+                                        fieldWithPath("data[]").type(JsonFieldType.ARRAY).description("게시글 데이터"),
+                                        fieldWithPath("data[].postId").type(JsonFieldType.NUMBER).description("게시글 번호"),
+                                        fieldWithPath("data[].thumbnailImage").type(JsonFieldType.STRING).description("시리즈"),
+                                        fieldWithPath("data[].title").type(JsonFieldType.STRING).description("시리즈 번호"),
+                                        fieldWithPath("data[].summary").type(JsonFieldType.STRING).description("시리즈 이름"),
+                                        fieldWithPath("data[].userId").type(JsonFieldType.NUMBER).description("게시글 작성자 번호"),
+                                        fieldWithPath("data[].createdAt").type(JsonFieldType.NULL).description("게시글 작성 시간"),
+                                        fieldWithPath("data[].commentCount").type(JsonFieldType.NUMBER).description("댓글"),
+                                        fieldWithPath("data[].likeCount").type(JsonFieldType.NUMBER).description("댓글 작성자 번호")
+                                )
+                        )
+                );
     }
 
     @DisplayName("사용자와 시리즈 이름으로 게시글 목록을 과거순으로 반환한다.")
     @Test
     void findSeriesPosts() throws Exception {
         //given
-        Long userId = 1L;
-        User user = TestFixtureUtil.createUser();
-
-        Series series = TestFixtureUtil.createSeries(user);
-
-        int postCount = 10;
-        List<Post> posts = TestFixtureUtil.createPosts(user, series, postCount);
-
-        int page = 0;
-        int size = 20;
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.ASC, "createdAt");
-
-        int likeCount = 0;
-        int commentCount = 0;
-        Slice<Post> slice = new SliceImpl<>(posts, pageRequest, false);
-        Slice<PostSummaryResponse> postSummaryResponses = slice
-                .map(post -> PostSummaryResponse.of(post, commentCount, likeCount));
-
-        PostSliceResponse<PostSummaryResponse> postSliceResponse = PostSliceResponse.from(postSummaryResponses);
-        when(postService.findPostsByUserAndSeries(userId, series.getName(), pageRequest)).thenReturn(postSliceResponse);
+        final long postId = 1l;
+        final long userId = 1l;
+        PostSliceResponse<PostSummaryResponse> postSliceResponse = getPostSliceResponse(postId, userId);
+        when(postService.findPostsByUserAndSeries(any(), any(String.class), any(PageRequest.class))).thenReturn(postSliceResponse);
 
         //when, then
         mockMvc.perform(get("/api/posts")
-                        .param("series", series.getName())
-                        .param("userId", String.valueOf(userId))
-                        .param("page", String.valueOf(page))
-                        .param("size", String.valueOf(size))
+                        .param("series", "시리즈")
+                        .param("page", String.valueOf(0))
+                        .param("size", String.valueOf(20))
                         .param("sort", "createdAt,asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.numberOfElements").value(postCount))
-                .andExpect(jsonPath("$.hasNext").value(false))
-                .andExpect(jsonPath("$.data", hasSize(postCount)))
-                .andDo(MockMvcResultHandlers.print());
+                .andDo(document("posts-find-series",
+                                resourceDetails().tag("게시물").description("시리즈별 게시물 조회")
+                                        .responseSchema(Schema.schema("PostSliceResponse")),
+                                queryParameters(
+                                        parameterWithName("series").description("시리즈 이름"),
+                                        parameterWithName("page").description("현재 페이지"),
+                                        parameterWithName("size").description("페이지 당 게시물 수"),
+                                        parameterWithName("sort").description("정렬 기준")
+                                ),
+                                responseFields(
+                                        fieldWithPath("numberOfElements").type(JsonFieldType.NUMBER).description("게시글 수"),
+                                        fieldWithPath("hasNext").type(JsonFieldType.BOOLEAN).description("마지막 페이지 체크"),
+                                        fieldWithPath("data[]").type(JsonFieldType.ARRAY).description("게시글 데이터"),
+                                        fieldWithPath("data[].postId").type(JsonFieldType.NUMBER).description("게시글 번호"),
+                                        fieldWithPath("data[].thumbnailImage").type(JsonFieldType.STRING).description("시리즈"),
+                                        fieldWithPath("data[].title").type(JsonFieldType.STRING).description("시리즈 번호"),
+                                        fieldWithPath("data[].summary").type(JsonFieldType.STRING).description("시리즈 이름"),
+                                        fieldWithPath("data[].userId").type(JsonFieldType.NUMBER).description("게시글 작성자 번호"),
+                                        fieldWithPath("data[].createdAt").type(JsonFieldType.NULL).description("게시글 작성 시간"),
+                                        fieldWithPath("data[].commentCount").type(JsonFieldType.NUMBER).description("댓글"),
+                                        fieldWithPath("data[].likeCount").type(JsonFieldType.NUMBER).description("댓글 작성자 번호")
+                                )
+                        )
+                );
+    }
+
+    @DisplayName("게시물 목록을 최신 순서로 조회한다.")
+    @Test
+    void findRecentPosts() throws Exception {
+        //given
+        final long postId = 1l;
+        final long userId = 1l;
+        PostSliceResponse<PostSummaryResponse> postSliceResponse = getPostSliceResponse(postId, userId);
+        when(postService.findPostsInLatestOrder(any(PageRequest.class))).thenReturn(postSliceResponse);
+
+        //when, then
+        mockMvc.perform(get("/api/posts/recent")
+                        .param("page", String.valueOf(0))
+                        .param("size", String.valueOf(20))
+                        .param("sort", "createdAt,desc")
+                        .header("AuthorizationCode", "tmp"))
+                .andExpect(status().isOk())
+                .andDo(document("posts-find-recent",
+                                resourceDetails().tag("게시물").description("게시물 최근 조회")
+                                        .responseSchema(Schema.schema("PostSliceResponse")),
+                                queryParameters(
+                                        parameterWithName("page").description("현재 페이지"),
+                                        parameterWithName("size").description("페이지 당 게시물 수"),
+                                        parameterWithName("sort").description("정렬 기준")
+                                ),
+                                responseFields(
+                                        fieldWithPath("numberOfElements").type(JsonFieldType.NUMBER).description("게시글 수"),
+                                        fieldWithPath("hasNext").type(JsonFieldType.BOOLEAN).description("마지막 페이지 체크"),
+                                        fieldWithPath("data[]").type(JsonFieldType.ARRAY).description("게시글 데이터"),
+                                        fieldWithPath("data[].postId").type(JsonFieldType.NUMBER).description("게시글 번호"),
+                                        fieldWithPath("data[].thumbnailImage").type(JsonFieldType.STRING).description("시리즈"),
+                                        fieldWithPath("data[].title").type(JsonFieldType.STRING).description("시리즈 번호"),
+                                        fieldWithPath("data[].summary").type(JsonFieldType.STRING).description("시리즈 이름"),
+                                        fieldWithPath("data[].userId").type(JsonFieldType.NUMBER).description("게시글 작성자 번호"),
+                                        fieldWithPath("data[].createdAt").type(JsonFieldType.NULL).description("게시글 작성 시간"),
+                                        fieldWithPath("data[].commentCount").type(JsonFieldType.NUMBER).description("댓글"),
+                                        fieldWithPath("data[].likeCount").type(JsonFieldType.NUMBER).description("댓글 작성자 번호")
+                                )
+                        )
+                );
     }
 
     @DisplayName("사용자의 게시물 업데이트 요청을 받아 업데이트 한 뒤 204 상태코드를 반환한다.")
     @Test
     void updatePostTest() throws Exception {
-        Long postId = 1L;
+        final Long postId = 1L;
         PostUpdateRequest request = getPostUpdateRequest();
         doNothing().when(postService).updatePost(any(PostUpdateRequest.class), anyLong(), anyLong());
 
         mockMvc.perform(put("/api/posts/{postId}", postId)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("AuthrizationCode", "asdasd")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNoContent())
                 .andDo(document("post-update",
@@ -229,22 +270,6 @@ class PostControllerTest extends ControllerTestConfig {
                 );
     }
 
-    @DisplayName("게시물의 식별자를 입력받아 삭제후 204상태코드를 반환한다.")
-    @Test
-    void deletePostTest() throws Exception {
-        Long postId = 1L;
-        Long userId = 1L;
-
-        doNothing().when(postService).deletePost(postId, userId);
-
-        mockMvc.perform(delete("/api/posts/{postId}", postId)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(document("post-delete",
-                        resourceDetails().tag("게시물").description("게시물 삭제"),
-                        pathParameters(parameterWithName("postId").description("게시물 식별자")))
-                ).andExpect(status().isNoContent());
-    }
-
     private PostUpdateRequest getPostUpdateRequest() {
         return new PostUpdateRequest(
                 "시리즈",
@@ -255,6 +280,47 @@ class PostControllerTest extends ControllerTestConfig {
                 false,
                 "변경된 URL",
                 "변경된 경로"
+        );
+    }
+
+    private PostResponse getPostResponse(
+            long postId,
+            long seriesId,
+            long userId,
+            long commentId) {
+        return new PostResponse(
+                postId,
+                new SeriesResponse(seriesId, "시리즈"),
+                userId,
+                "제목",
+                0l,
+                "내용",
+                "요약",
+                true,
+                "경로",
+                null,
+                List.of(new CommentResponse(
+                        commentId,
+                        new Writer(userId, "닉네임"),
+                        "내용", null)
+                )
+        );
+    }
+
+    private PostSliceResponse<PostSummaryResponse> getPostSliceResponse(long postId, long userId) {
+        return new PostSliceResponse<PostSummaryResponse>(
+                10,
+                false,
+                List.of(new PostSummaryResponse(
+                        postId,
+                        "썸네일 이미지",
+                        "제목",
+                        "요약",
+                        userId,
+                        null,
+                        0,
+                        0)
+                )
         );
     }
 

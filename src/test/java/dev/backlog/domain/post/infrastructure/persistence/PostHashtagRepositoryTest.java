@@ -24,10 +24,13 @@ class PostHashtagRepositoryTest {
 
     @Autowired
     private PostHashtagRepository postHashtagRepository;
+
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private PostRepository postRepository;
+
     @Autowired
     private HashtagRepository hashtagRepository;
 
@@ -38,7 +41,7 @@ class PostHashtagRepositoryTest {
     @BeforeEach
     void setUp() {
         유저1 = userRepository.save(유저1());
-        게시물1 = postRepository.save(게시물1(유저1));
+        게시물1 = postRepository.save(게시물1(유저1, null));
         해쉬태그_모음 = hashtagRepository.saveAll(해쉬태그_모음());
     }
 
@@ -53,10 +56,10 @@ class PostHashtagRepositoryTest {
         List<PostHashtag> findPostHashtag = postHashtagRepository.findByPost(게시물1);
         assertThat(findPostHashtag).isEmpty();
     }
-    
+
     @DisplayName("게시물로 게시물에 등록된 해쉬태그를 검색할 수 있다.")
     @Test
-    void findByPostTest(){
+    void findByPostTest() {
         List<PostHashtag> postHashtags = createPostHashtags(게시물1, 해쉬태그_모음);
         postHashtagRepository.saveAll(postHashtags);
 
@@ -64,7 +67,7 @@ class PostHashtagRepositoryTest {
 
         포스트_해쉬태그.forEach(a -> System.out.println(a.getHashtag()));
         assertThat(포스트_해쉬태그).hasSize(해쉬태그_모음.size());
-     }
+    }
 
     @DisplayName("해쉬태그를 통해 사용되고 있는 게시물이 없다면 True를 반환한다.")
     @Test

@@ -1,7 +1,5 @@
 package dev.backlog.domain.like.infrastructure.persistence;
 
-import dev.backlog.common.util.TestFixtureUtil;
-import dev.backlog.domain.like.model.Like;
 import dev.backlog.domain.post.infrastructure.persistence.PostRepository;
 import dev.backlog.domain.post.model.Post;
 import dev.backlog.domain.user.infrastructure.persistence.UserRepository;
@@ -11,6 +9,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+
+import static dev.backlog.common.fixture.TestFixture.게시물1;
+import static dev.backlog.common.fixture.TestFixture.유저1;
+import static dev.backlog.common.fixture.TestFixture.좋아요1;
 
 @DataJpaTest
 class LikeRepositoryTest {
@@ -28,20 +30,11 @@ class LikeRepositoryTest {
     @Test
     void countByPost() {
         //given
-        User user1 = TestFixtureUtil.createUser();
-        userRepository.save(user1);
-
-        User user2 = TestFixtureUtil.createUser();
-        userRepository.save(user2);
-
-        Post post = TestFixtureUtil.createPost(user1, null);
-        postRepository.save(post);
-
-        Like like1 = TestFixtureUtil.createLike(user1, post);
-        likeRepository.save(like1);
-
-        Like like2 = TestFixtureUtil.createLike(user2, post);
-        likeRepository.save(like2);
+        User user1 = userRepository.save(유저1());
+        User user2 = userRepository.save(유저1());
+        Post post = postRepository.save(게시물1(user1, null));
+        likeRepository.save(좋아요1(user1, post));
+        likeRepository.save(좋아요1(user2, post));
 
         //when
         int likeCount = likeRepository.countByPost(post);
