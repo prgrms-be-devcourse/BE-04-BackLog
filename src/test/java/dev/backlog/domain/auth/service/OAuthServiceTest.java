@@ -56,18 +56,8 @@ class OAuthServiceTest {
     @DisplayName("회원가입에 성공하면 토큰을 생성해 반환한다.")
     @Test
     void signupTest() {
-        String authCode = "authCode";
-        String accessToken = "accessToken";
-        String refreshToken = "refreshToken";
-        String grantType = "Bearer ";
-        Long expiresIn = 1000L;
-
-        SignupRequest signupRequest = SignupRequest.builder()
-                .blogTitle("블로그 제목")
-                .introduction("소개")
-                .authCode(authCode)
-                .oAuthProvider(OAuthProvider.KAKAO)
-                .build();
+        SignupRequest signupRequest = createSignupRequest();
+        AuthTokens authToken = createAuthTokens();
 
         OAuthInfoResponse response = OAuthInfoResponse.builder()
                 .nickname("닉네임")
@@ -79,13 +69,6 @@ class OAuthServiceTest {
 
         User newUser = TestFixture.유저1();
 
-        AuthTokens authToken = AuthTokens.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .grantType(grantType)
-                .expiresIn(expiresIn)
-                .build();
-
         when(oAuthMemberClientComposite.fetch(signupRequest.oAuthProvider(), signupRequest.authCode())).thenReturn(response);
         when(userRepository.save(any())).thenReturn(newUser);
         when(authTokensGenerator.generate(newUser.getId())).thenReturn(authToken);
@@ -93,50 +76,60 @@ class OAuthServiceTest {
         AuthTokens authTokens = oAuthService.signup(signupRequest);
 
         assertAll(
-                () -> assertThat(authTokens.accessToken()).isEqualTo(accessToken),
-                () -> assertThat(authTokens.refreshToken()).isEqualTo(refreshToken),
-                () -> assertThat(authTokens.grantType()).isEqualTo(grantType),
-                () -> assertThat(authTokens.expiresIn()).isEqualTo(expiresIn)
+                () -> assertThat(authTokens.accessToken()).isEqualTo("accessToken"),
+                () -> assertThat(authTokens.refreshToken()).isEqualTo("refreshToken"),
+                () -> assertThat(authTokens.grantType()).isEqualTo("Bearer "),
+                () -> assertThat(authTokens.expiresIn()).isEqualTo(1000L)
         );
     }
 
     @DisplayName("로그인에 성공하면 토큰을 생성해 반환한다.")
     @Test
     void loginTest() {
-        String authCode = "authCode";
-        String accessToken = "accessToken";
-        String refreshToken = "refreshToken";
-        String grantType = "Bearer ";
-        Long expiresIn = 1000L;
-
         User user = TestFixture.유저1();
-        OAuthInfoResponse response = OAuthInfoResponse.builder()
+        OAuthInfoResponse response = createOAuthInfoResponse(user);
+        AuthTokens expectedToken = createAuthTokens();
+
+        when(oAuthMemberClientComposite.fetch(any(), any())).thenReturn(response);
+        when(userRepository.findByOauthProviderIdAndOauthProvider(user.getOauthProviderId(), user.getOauthProvider())).thenReturn(Optional.of(user));
+        when(authTokensGenerator.generate(user.getId())).thenReturn(expectedToken);
+
+        AuthTokens authTokens = oAuthService.login(OAuthProvider.KAKAO, "authCode");
+
+        assertAll(
+                () -> assertThat(authTokens.accessToken()).isEqualTo("accessToken"),
+                () -> assertThat(authTokens.refreshToken()).isEqualTo("refreshToken"),
+                () -> assertThat(authTokens.grantType()).isEqualTo("Bearer "),
+                () -> assertThat(authTokens.expiresIn()).isEqualTo(1000L)
+        );
+    }
+
+    private SignupRequest createSignupRequest() {
+        return SignupRequest.builder()
+                .blogTitle("블로그 제목")
+                .introduction("소개")
+                .authCode("authCode")
+                .oAuthProvider(OAuthProvider.KAKAO)
+                .build();
+    }
+
+    private AuthTokens createAuthTokens() {
+        return AuthTokens.builder()
+                .accessToken("accessToken")
+                .refreshToken("refreshToken")
+                .grantType("Bearer ")
+                .expiresIn(1000L)
+                .build();
+    }
+
+    private OAuthInfoResponse createOAuthInfoResponse(User user) {
+        return OAuthInfoResponse.builder()
                 .nickname(user.getNickname())
                 .profileImage(user.getProfileImage())
                 .email(user.getEmail())
                 .oAuthProvider(user.getOauthProvider())
                 .oAuthProviderId(user.getOauthProviderId())
                 .build();
-
-        AuthTokens authToken = AuthTokens.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .grantType(grantType)
-                .expiresIn(expiresIn)
-                .build();
-
-        when(oAuthMemberClientComposite.fetch(any(), any())).thenReturn(response);
-        when(userRepository.findByOauthProviderIdAndOauthProvider(user.getOauthProviderId(), user.getOauthProvider())).thenReturn(Optional.of(user));
-        when(authTokensGenerator.generate(user.getId())).thenReturn(authToken);
-
-        AuthTokens authTokens = oAuthService.login(OAuthProvider.KAKAO, authCode);
-
-        assertAll(
-                () -> assertThat(authTokens.accessToken()).isEqualTo(accessToken),
-                () -> assertThat(authTokens.refreshToken()).isEqualTo(refreshToken),
-                () -> assertThat(authTokens.grantType()).isEqualTo(grantType),
-                () -> assertThat(authTokens.expiresIn()).isEqualTo(expiresIn)
-        );
     }
 
 }
