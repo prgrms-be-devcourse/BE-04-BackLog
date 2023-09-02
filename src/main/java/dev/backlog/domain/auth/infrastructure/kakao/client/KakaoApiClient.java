@@ -23,14 +23,17 @@ public class KakaoApiClient {
     private final RestTemplate restTemplate;
     private final String clientId;
     private final String redirectUrl;
+    private final String clientSecret;
 
     public KakaoApiClient(RestTemplate restTemplate,
                           @Value("${oauth.kakao.client-id}") String clientId,
-                          @Value("${oauth.kakao.redirect-url}") String redirectUrl
+                          @Value("${oauth.kakao.redirect-url}") String redirectUrl,
+                          @Value("${oauth.kakao.client-secret}") String clientSecret
     ) {
         this.restTemplate = restTemplate;
         this.clientId = clientId;
         this.redirectUrl = redirectUrl;
+        this.clientSecret = clientSecret;
     }
 
     public KakaoTokens fetchToken(String authCode) {
@@ -41,6 +44,7 @@ public class KakaoApiClient {
         body.add("grant_type", GRANT_TYPE);
         body.add("client_id", clientId);
         body.add("redirect_uri", redirectUrl);
+        body.add("client_secret", clientSecret);
         body.add("code", authCode);
 
         HttpEntity<?> request = new HttpEntity<>(body, httpHeaders);
