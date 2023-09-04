@@ -14,9 +14,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
 
-import static dev.backlog.common.fixture.TestFixture.게시물1;
-import static dev.backlog.common.fixture.TestFixture.유저1;
-import static dev.backlog.common.fixture.TestFixture.해쉬태그_모음;
+import static dev.backlog.common.fixture.EntityFixture.게시물1;
+import static dev.backlog.common.fixture.EntityFixture.유저1;
+import static dev.backlog.common.fixture.EntityFixture.해쉬태그_모음;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest

@@ -1,21 +1,20 @@
 package dev.backlog.domain.auth.infrastructure.kakao.authcode;
 
-import dev.backlog.domain.auth.config.KakaoOauthConfig;
+import dev.backlog.domain.auth.infrastructure.kakao.config.KakaoProperties;
 import dev.backlog.domain.auth.model.oauth.OAuthProvider;
 import dev.backlog.domain.auth.model.oauth.authcode.AuthCodeRequestUrlProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import static dev.backlog.domain.auth.config.KakaoOauthConfig.AUTHORIZE_URL;
-
 @Component
 @RequiredArgsConstructor
 public class KakaoAuthCodeRequestUrlProvider implements AuthCodeRequestUrlProvider {
 
+    private static final String AUTHORIZE_URL = "https://kauth.kakao.com/oauth/authorize";
     private static final String RESPONSE_TYPE = "code";
 
-    private final KakaoOauthConfig kakaoOauthConfig;
+    private final KakaoProperties kakaoProperties;
 
     @Override
     public OAuthProvider oAuthProvider() {
@@ -25,10 +24,10 @@ public class KakaoAuthCodeRequestUrlProvider implements AuthCodeRequestUrlProvid
     @Override
     public String provide() {
         return UriComponentsBuilder
-                .fromUriString(kakaoOauthConfig.getAuthUrl() + AUTHORIZE_URL)
+                .fromUriString(AUTHORIZE_URL)
                 .queryParam("response_type", RESPONSE_TYPE)
-                .queryParam("client_id", kakaoOauthConfig.getClientId())
-                .queryParam("redirect_uri", kakaoOauthConfig.getRedirectUrl())
+                .queryParam("client_id", kakaoProperties.getClientId())
+                .queryParam("redirect_uri", kakaoProperties.getRedirectUrl())
                 .toUriString();
     }
 
