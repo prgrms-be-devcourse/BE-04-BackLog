@@ -12,9 +12,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
 
-import static dev.backlog.common.fixture.TestFixture.게시물1;
-import static dev.backlog.common.fixture.TestFixture.댓글1;
-import static dev.backlog.common.fixture.TestFixture.유저1;
+import static dev.backlog.common.fixture.EntityFixture.게시물1;
+import static dev.backlog.common.fixture.EntityFixture.댓글1;
+import static dev.backlog.common.fixture.EntityFixture.유저1;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -46,4 +46,5 @@ class CommentRepositoryTest {
         int expectedSize = 2;
         assertThat(comments).hasSize(expectedSize);
     }
+
 }
