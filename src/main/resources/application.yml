@@ -23,10 +23,10 @@ jwt:
   refresh-token-expire-time: ${REFRESH_TOKEN_EXPIRE_TIME}
 
 oauth:
-    kakao:
-      client-id: ${KAKAO_CLIENT_ID}
-      redirect-url: ${KAKAO_REDIRECT_URL}
-      client-secret: ${KAKAO_SECRET}
+  kakao:
+    client-id: ${KAKAO_CLIENT_ID}
+    redirect-url: ${KAKAO_REDIRECT_URL}
+    client-secret: ${KAKAO_SECRET}
 
 springdoc:
   swagger-ui:
